@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "418260216398",
+    "firebase_url": "https://calendar-f34b8.firebaseio.com",
+    "project_id": "calendar-f34b8",
+    "storage_bucket": "calendar-f34b8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418260216398:android:cae245f6a1ecb55b",
+        "android_client_info": {
+          "package_name": "com.graham.calendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "418260216398-7m0tlmqkhgl47dke4kqqk2jg0ef1h263.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtUN9M-EDbaqv1gFjJDDc5CdOxdwKglMw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
