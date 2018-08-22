@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'splash_screen.dart';
+import 'event_creator.dart';
 
 void main() => runApp(new MyApp());
 
@@ -20,6 +22,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/splash': (context) => SplashPage(),
         '/calendar': (context) => MyApp(),
+        '/event_creator': (context) => EventCreator(),
       },
     );
   }
@@ -33,6 +36,7 @@ class MonthView extends StatefulWidget {
 }
 
 class CalendarState extends State<MonthView> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   DateTime _dateTime;
   QuerySnapshot _userEventSnapshot;
 
@@ -41,23 +45,21 @@ class CalendarState extends State<MonthView> {
   }
 
   Future<QuerySnapshot> getCalendarData() async {
-    QuerySnapshot userEvents = await Firestore.instance
-//        .collection('users')
-//        .document('SRUdrJj7NjPnIkcqgxjb')
-//        .collection('january_events')
-        .collection('calendar_events')
-        .where('time', isGreaterThanOrEqualTo: new DateTime(2018, _dateTime.month))
-        .where('email', isEqualTo: "aubry@gmail.com")
-        .getDocuments();
+    FirebaseUser currentUser = await _auth.currentUser();
 
-//    userEvents.documents.forEach((doc) {
-//      print(doc.data['name']);
-//      print(doc.data['time']);
-//      print(doc.data['summary']);
-//    });
+    if (currentUser != null) {
+      QuerySnapshot userEvents = await Firestore.instance
+          .collection('calendar_events')
+          .where(
+          'time', isGreaterThanOrEqualTo: new DateTime(2018, _dateTime.month))
+          .where('email', isEqualTo: currentUser.email)
+          .getDocuments();
 
-    _userEventSnapshot = userEvents;
-    return _userEventSnapshot;
+      _userEventSnapshot = userEvents;
+      return _userEventSnapshot;
+    } else {
+      return null;
+    }
   }
 
   void _previousMonthSelected() {
@@ -84,6 +86,7 @@ class CalendarState extends State<MonthView> {
 
   void _onFabClicked() {
     print("on FAB clicked()...");
+    Navigator.pushNamed(context, '/event_creator');
   }
 
   @override
@@ -156,13 +159,10 @@ class CalendarState extends State<MonthView> {
               mainAxisSize: MainAxisSize.min,
             ),
             new GridView.count(
-              // Create a grid with 2 columns. If you change the scrollDirection to
-              // horizontal, this would produce 2 rows.
               crossAxisCount: numWeekDays,
               childAspectRatio: (itemWidth / itemHeight),
               shrinkWrap: true,
               scrollDirection: Axis.vertical,
-              // Generate 100 Widgets that display their index in the List
               children: List.generate(getNumberOfDaysInMonth(_dateTime.month),
                   (index) {
                 int dayNumber = index + 1;
@@ -188,7 +188,8 @@ class CalendarState extends State<MonthView> {
   }
 
   Align buildDayNumberWidget(int dayNumber) {
-    if (dayNumber == DateTime.now().day) {
+    if (dayNumber == DateTime.now().day
+        && _dateTime.month == DateTime.now().month) {
       // Add a circle around the current day
       return Align(
         alignment: Alignment.topLeft,
@@ -242,7 +243,10 @@ class CalendarState extends State<MonthView> {
 
               _userEventSnapshot.documents.forEach((doc) {
                 eventDate = doc.data['time'];
-                if (eventDate != null && eventDate.day == dayNumber) {
+                if (eventDate != null
+                    && eventDate.day == dayNumber
+                    && eventDate.month == _dateTime.month
+                    && eventDate.year == _dateTime.year) {
                   eventCount++;
                 }
               });
@@ -270,22 +274,6 @@ class CalendarState extends State<MonthView> {
                 return new Text('Result: ${snapshot.data}');
           }
         });
-
-//    userEventSnapshot = await getCalendarData();
-//    userEventSnapshot.documents.where((doc) {
-//      print(doc.data['time']);
-//
-//      if (doc.data['time'] == DateTime.now()) {
-//
-//      }
-//    });
-    _userEventSnapshot.documents.forEach((doc) {
-      print(doc.data['name']);
-      print(doc.data['time']);
-      print(doc.data['summary']);
-    });
-//
-//    return null;
   }
 
   int getNumberOfDaysInMonth(final int month) {

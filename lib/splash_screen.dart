@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-
-class SplashPage extends StatefulWidget {
-  @override
-  State createState() => new _SplashPageState();
-}
 
 class _LoginData {
   String email = '';
   String password = '';
 }
 
+class SplashPage extends StatefulWidget {
+  @override
+  State createState() => new _SplashPageState();
+}
+
 class _SplashPageState extends State<SplashPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = new GoogleSignIn();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   _LoginData _data = new _LoginData();
 
