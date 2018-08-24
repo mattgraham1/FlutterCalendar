@@ -31,7 +31,7 @@ class _SplashPageState extends State<SplashPage> {
     return null;
   }
 
-  Future submit() async {
+  Future signInWithEmail() async {
     FirebaseUser user;
 
     // First validate form.
@@ -57,13 +57,50 @@ class _SplashPageState extends State<SplashPage> {
         print('signInEmail succeeded: $user');
 
         // Navigate to main calendar view
-        Navigator.of(context).pop();
+        _navigateToCalendarView();
+      }
+    }
+  }
+
+  void _navigateToCalendarView() {
+    if (Navigator.canPop(context)) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushNamed('/calendar');
+    }
+  }
+
+  Future signUpWithEmail() async {
+    FirebaseUser user;
+
+    if (this._formKey.currentState.validate()) {
+      _formKey.currentState.save();
+      try {
+        user = await _auth.createUserWithEmailAndPassword(
+            email: _data.email, password: _data.password);
+      } catch (error) {
+        print(error);
+      } finally {
+        assert(user != null);
+        assert(await user.getIdToken() != null);
+
+        final FirebaseUser currentUser = await _auth.currentUser();
+        assert(user.uid == currentUser.uid);
+
+        print('signInEmail succeeded: $user');
+
+        // Navigate to main calendar view
+        _navigateToCalendarView();
       }
     }
   }
 
   void byPassLogin() {
-    Navigator.of(context).pop();
+    if (_auth.currentUser() != null) {
+      Navigator.of(context).pop();
+    } else {
+      print('Invalid user.');
+    }
   }
 
   @override
@@ -86,7 +123,7 @@ class _SplashPageState extends State<SplashPage> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: new InputDecoration(
                     hintText: 'firstname.lastname@gmail.com',
-                    labelText: 'Google Gmail address',
+                    labelText: 'Email address',
                   ),
                   style: TextStyle(fontSize: 24.0, color: Colors.black),
                   validator: this.validateEmail,
@@ -115,19 +152,21 @@ class _SplashPageState extends State<SplashPage> {
                       style: new TextStyle(fontSize: 24.0, color: Colors.white),
                     ),
                     color: Colors.blue,
-                    onPressed: this.submit),
+                    onPressed: this.signInWithEmail
+                  ),
                 ),
                 new Container(
                   width: MediaQuery.of(context).size.width,
                   margin: new EdgeInsets.only(top: 20.0),
                   child: new RaisedButton(
                       child: new Text(
-                        'Bypass Login',
+                        'Sign Up',
                         style: new TextStyle(fontSize: 24.0, color: Colors.white),
                       ),
                       color: Colors.blue,
-                      onPressed: this.byPassLogin),
-                )
+                      onPressed: this.signUpWithEmail
+                  ),
+                ),
               ],
             )
         ),

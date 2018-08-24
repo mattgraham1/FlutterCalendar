@@ -6,9 +6,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'splash_screen.dart';
 import 'event_creator.dart';
 
+enum _AppBarMenu {refresh, logout}
+
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -17,13 +21,34 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MonthView(),
-      initialRoute: '/splash',
+      home: _loadHomeScreen(),
       routes: {
         '/splash': (context) => SplashPage(),
         '/calendar': (context) => MyApp(),
         '/event_creator': (context) => EventCreator(),
       },
+    );
+  }
+
+  _loadHomeScreen() {
+    return FutureBuilder<FirebaseUser>(
+      future: _auth.currentUser(),
+      builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
+        switch(snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+            return CircularProgressIndicator();
+          default:
+            if(snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              if(snapshot.data == null)
+                return SplashPage();
+              else
+                return MonthView();
+            }
+        }
+      }
     );
   }
 }
@@ -110,13 +135,30 @@ class CalendarState extends State<MonthView> {
                   Icons.chevron_left,
                   color: Colors.white,
                 ),
-                onPressed: _previousMonthSelected),
+                onPressed: _previousMonthSelected
+            ),
             IconButton(
                 icon: Icon(
                   Icons.chevron_right,
                   color: Colors.white,
                 ),
-                onPressed: _nextMonthSelected),
+                onPressed: _nextMonthSelected
+            ),
+            PopupMenuButton<_AppBarMenu>(
+              onSelected: (_AppBarMenu value) {
+                _handleAppbarMenu(context, value);
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuItem<_AppBarMenu>>[
+                const PopupMenuItem(
+                  value: _AppBarMenu.refresh,
+                  child: Text('Refresh'),
+                ),
+                const PopupMenuItem(
+                  value: _AppBarMenu.logout,
+                  child: Text('Logout'),
+                )
+              ],
+            ),
           ],
         ),
         floatingActionButton: new FloatingActionButton(
@@ -352,6 +394,18 @@ class CalendarState extends State<MonthView> {
         return "December";
       default:
         return "Unknown";
+    }
+  }
+
+  Future _handleAppbarMenu(BuildContext context, _AppBarMenu value) async {
+    switch(value) {
+      case _AppBarMenu.refresh:
+        // TODO: refresh calendar data.
+        break;
+      case _AppBarMenu.logout:
+        await _auth.signOut();
+        Navigator.pushNamed(context, '/splash');
+        break;
     }
   }
 }
