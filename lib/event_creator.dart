@@ -69,9 +69,6 @@ class EventCreatorState extends State<EventCreator> {
                   labelText: 'Event Date',
                   contentPadding: EdgeInsets.all(10.0)
               ),
-              onChanged: (date) {
-                print(date.toUtc().toString());
-              },
               autovalidate: false,
               validator: this._validateDate,
               onSaved: (DateTime value) => this._eventData.time = value,

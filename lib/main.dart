@@ -3,12 +3,19 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'splash_screen.dart';
 import 'event_creator.dart';
 
 enum _AppBarMenu {refresh, logout}
 
-void main() => runApp(new MyApp());
+void main() {
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown
+  ]);
+  runApp(new MyApp());
+}
 
 class MyApp extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -30,7 +37,7 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  _loadHomeScreen() {
+  Widget _loadHomeScreen() {
     return FutureBuilder<FirebaseUser>(
       future: _auth.currentUser(),
       builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
@@ -64,9 +71,16 @@ class CalendarState extends State<MonthView> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   DateTime _dateTime;
   QuerySnapshot _userEventSnapshot;
+  int _beginMonthPadding=0;
 
   CalendarState() {
     _dateTime = DateTime.now();
+    setMonthPading();
+  }
+
+  void setMonthPading() {
+    _beginMonthPadding = new DateTime(_dateTime.year, _dateTime.month, 1).weekday;
+    _beginMonthPadding == 7 ? (_beginMonthPadding = 0) : _beginMonthPadding;
   }
 
   Future<QuerySnapshot> getCalendarData() async {
@@ -93,6 +107,8 @@ class CalendarState extends State<MonthView> {
         _dateTime = new DateTime(_dateTime.year - 1, DateTime.december);
       else
         _dateTime = new DateTime(_dateTime.year, _dateTime.month - 1);
+
+      setMonthPading();
     });
   }
 
@@ -102,6 +118,8 @@ class CalendarState extends State<MonthView> {
         _dateTime = new DateTime(_dateTime.year + 1, DateTime.january);
       else
         _dateTime = new DateTime(_dateTime.year, _dateTime.month + 1);
+
+      setMonthPading();
     });
   }
 
@@ -121,7 +139,7 @@ class CalendarState extends State<MonthView> {
 
     /*24 is for notification bar on Android*/
     /*28 is for weekday labels of the row*/
-    final double itemHeight = (size.height - kToolbarHeight - 24 - 28) / 5;
+    final double itemHeight = (size.height - kToolbarHeight - 24 - 28) / 6;
     final double itemWidth = size.width / numWeekDays;
 
     return new Scaffold(
@@ -206,23 +224,24 @@ class CalendarState extends State<MonthView> {
               shrinkWrap: true,
               scrollDirection: Axis.vertical,
               children: List.generate(getNumberOfDaysInMonth(_dateTime.month),
+//              children: List.generate(35,
                   (index) {
                 int dayNumber = index + 1;
                 return new GestureDetector(
                     // Used for handling tap on each day view
                     onTap: _onDayTapped,
                     child: new Container(
-                        margin: const EdgeInsets.all(2.0),
-                        padding: const EdgeInsets.all(1.0),
-                        decoration: new BoxDecoration(
+                      margin: const EdgeInsets.all(2.0),
+                      padding: const EdgeInsets.all(1.0),
+                      decoration: new BoxDecoration(
 //                        color: Colors.red, // Color for debugging layout
-                            border: new Border.all(color: Colors.grey)),
-                        child: new Column(
-                          children: <Widget>[
-                            buildDayNumberWidget(dayNumber),
-                            buildDayEventInfoWidget(dayNumber),
-                          ],
-                        )));
+                          border: new Border.all(color: Colors.grey)),
+                      child: new Column(
+                        children: <Widget>[
+                          buildDayNumberWidget(dayNumber),
+                          buildDayEventInfoWidget(dayNumber),
+                        ],
+                      )));
               }),
             )
           ],
@@ -230,6 +249,7 @@ class CalendarState extends State<MonthView> {
   }
 
   Align buildDayNumberWidget(int dayNumber) {
+    print('buildDayNumberWidget, dayNumber: $dayNumber');
     if (dayNumber == DateTime.now().day
         && _dateTime.month == DateTime.now().month) {
       // Add a circle around the current day
@@ -241,13 +261,12 @@ class CalendarState extends State<MonthView> {
           padding: EdgeInsets.all(5.0),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.orange, // Color for debugging layout
+            color: Colors.orange,
             border: Border.all(),
           ),
           child: new Text(
-            '$dayNumber',
+            (dayNumber - _beginMonthPadding).toString(),
             textAlign: TextAlign.center,
-            //style: Theme.of(context).textTheme.headline,
             style: TextStyle(color: Colors.black, fontSize: 20.0),
           ),
         ),
@@ -261,9 +280,8 @@ class CalendarState extends State<MonthView> {
           height: 35.0,
           padding: EdgeInsets.all(5.0),
           child: new Text(
-            '$dayNumber',
+            dayNumber <= _beginMonthPadding ? ' ' : (dayNumber - _beginMonthPadding).toString(),
             textAlign: TextAlign.center,
-            //style: Theme.of(context).textTheme.headline,
             style: TextStyle(color: Colors.black, fontSize: 20.0),
           ),
         ),
@@ -286,7 +304,7 @@ class CalendarState extends State<MonthView> {
               _userEventSnapshot.documents.forEach((doc) {
                 eventDate = doc.data['time'];
                 if (eventDate != null
-                    && eventDate.day == dayNumber
+                    && eventDate.day == dayNumber-_beginMonthPadding
                     && eventDate.month == _dateTime.month
                     && eventDate.year == _dateTime.year) {
                   eventCount++;
@@ -362,7 +380,7 @@ class CalendarState extends State<MonthView> {
       default:
         numDays = 28;
     }
-    return numDays;
+    return numDays + _beginMonthPadding;
   }
 
   String getMonthName(final int month) {

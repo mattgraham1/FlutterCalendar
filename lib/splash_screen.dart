@@ -159,12 +159,12 @@ class _SplashPageState extends State<SplashPage> {
                   width: MediaQuery.of(context).size.width,
                   margin: new EdgeInsets.only(top: 20.0),
                   child: new RaisedButton(
-                      child: new Text(
-                        'Sign Up',
-                        style: new TextStyle(fontSize: 24.0, color: Colors.white),
-                      ),
-                      color: Colors.blue,
-                      onPressed: this.signUpWithEmail
+                    child: new Text(
+                      'Sign Up',
+                      style: new TextStyle(fontSize: 24.0, color: Colors.white),
+                    ),
+                    color: Colors.blue,
+                    onPressed: this.signUpWithEmail
                   ),
                 ),
               ],
