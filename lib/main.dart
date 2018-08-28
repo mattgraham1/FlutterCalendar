@@ -139,7 +139,8 @@ class CalendarState extends State<MonthView> {
 
     /*24 is for notification bar on Android*/
     /*28 is for weekday labels of the row*/
-    final double itemHeight = (size.height - kToolbarHeight - 24 - 28) / 6;
+    // 55 is for iPhoneX clipping issue.
+    final double itemHeight = (size.height - kToolbarHeight-24-28-55) / 6;
     final double itemWidth = size.width / numWeekDays;
 
     return new Scaffold(
@@ -251,7 +252,8 @@ class CalendarState extends State<MonthView> {
   Align buildDayNumberWidget(int dayNumber) {
     print('buildDayNumberWidget, dayNumber: $dayNumber');
     if (dayNumber == DateTime.now().day
-        && _dateTime.month == DateTime.now().month) {
+        && _dateTime.month == DateTime.now().month
+        && _dateTime.year == DateTime.now().year) {
       // Add a circle around the current day
       return Align(
         alignment: Alignment.topLeft,
@@ -267,7 +269,7 @@ class CalendarState extends State<MonthView> {
           child: new Text(
             (dayNumber - _beginMonthPadding).toString(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black, fontSize: 20.0),
+            style: TextStyle(color: Colors.black, fontSize: 18.0),
           ),
         ),
       );
@@ -282,7 +284,7 @@ class CalendarState extends State<MonthView> {
           child: new Text(
             dayNumber <= _beginMonthPadding ? ' ' : (dayNumber - _beginMonthPadding).toString(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black, fontSize: 20.0),
+            style: TextStyle(color: Colors.black, fontSize: 18.0),
           ),
         ),
       );
