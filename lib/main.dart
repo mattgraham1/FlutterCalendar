@@ -4,8 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+
 import 'splash_screen.dart';
 import 'event_creator.dart';
+import 'event_list_view.dart';
 
 enum _AppBarMenu {refresh, logout}
 
@@ -123,12 +125,13 @@ class CalendarState extends State<MonthView> {
     });
   }
 
-  void _onDayTapped() {
-    print("onDayTapped()...");
+  void _onDayTapped(int day) {
+    Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
+      => new EventsView(new DateTime(_dateTime.year, _dateTime.month, day)))
+    );
   }
 
   void _onFabClicked() {
-    print("on FAB clicked()...");
     Navigator.pushNamed(context, '/event_creator');
   }
 
@@ -230,7 +233,7 @@ class CalendarState extends State<MonthView> {
                 int dayNumber = index + 1;
                 return new GestureDetector(
                     // Used for handling tap on each day view
-                    onTap: _onDayTapped,
+                    onTap: () => _onDayTapped(dayNumber - _beginMonthPadding),
                     child: new Container(
                       margin: const EdgeInsets.all(2.0),
                       padding: const EdgeInsets.all(1.0),
@@ -335,7 +338,8 @@ class CalendarState extends State<MonthView> {
               else
                 return new Text('Result: ${snapshot.data}');
           }
-        });
+        }
+    );
   }
 
   int getNumberOfDaysInMonth(final int month) {
