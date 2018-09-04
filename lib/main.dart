@@ -9,7 +9,7 @@ import 'splash_screen.dart';
 import 'event_creator.dart';
 import 'event_list_view.dart';
 
-enum _AppBarMenu {refresh, logout}
+enum _AppBarMenu {logout}
 
 void main() {
   SystemChrome.setPreferredOrientations([
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/splash': (context) => SplashPage(),
         '/calendar': (context) => MyApp(),
-        '/event_creator': (context) => EventCreator(),
+        '/event_creator': (context) => EventCreator(null),
       },
     );
   }
@@ -172,10 +172,6 @@ class CalendarState extends State<MonthView> {
               },
               itemBuilder: (BuildContext context) => <PopupMenuItem<_AppBarMenu>>[
                 const PopupMenuItem(
-                  value: _AppBarMenu.refresh,
-                  child: Text('Refresh'),
-                ),
-                const PopupMenuItem(
                   value: _AppBarMenu.logout,
                   child: Text('Logout'),
                 )
@@ -254,7 +250,7 @@ class CalendarState extends State<MonthView> {
 
   Align buildDayNumberWidget(int dayNumber) {
     print('buildDayNumberWidget, dayNumber: $dayNumber');
-    if (dayNumber == DateTime.now().day
+    if ((dayNumber-_beginMonthPadding) == DateTime.now().day
         && _dateTime.month == DateTime.now().month
         && _dateTime.year == DateTime.now().year) {
       // Add a circle around the current day
@@ -423,12 +419,9 @@ class CalendarState extends State<MonthView> {
 
   Future _handleAppbarMenu(BuildContext context, _AppBarMenu value) async {
     switch(value) {
-      case _AppBarMenu.refresh:
-        // TODO: refresh calendar data.
-        break;
       case _AppBarMenu.logout:
         await _auth.signOut();
-        Navigator.pushNamed(context, '/splash');
+        Navigator.of(context).pushNamedAndRemoveUntil('/splash', (Route<dynamic> route) => false);
         break;
     }
   }

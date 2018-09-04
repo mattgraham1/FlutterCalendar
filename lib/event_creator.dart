@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:flutter_widget_app/event_model.dart';
 import 'package:intl/intl.dart';
 
 class EventData {
@@ -13,9 +14,15 @@ class EventData {
 }
 
 class EventCreator extends StatefulWidget {
+  final Event _event;
+
   @override
   State<StatefulWidget> createState() {
     return new EventCreatorState();
+  }
+
+  EventCreator(this._event) {
+    createState();
   }
 }
 
@@ -55,6 +62,7 @@ class EventCreatorState extends State<EventCreator> {
                   labelText: 'Event Title',
                   contentPadding: EdgeInsets.all(10.0)
               ),
+              initialValue: widget._event != null ? widget._event.title : '',
               keyboardType: TextInputType.text,
               style: TextStyle(fontSize: 24.0, color: Colors.black),
               autovalidate: false,
@@ -62,6 +70,8 @@ class EventCreatorState extends State<EventCreator> {
               onSaved: (String value) => this._eventData.title = value,
             ),
             new DateTimePickerFormField(
+              initialDate: widget._event != null ? widget._event.time : DateTime.now(),
+              initialValue: widget._event != null ? widget._event.time : DateTime.now(),
               format: dateFormat,
               keyboardType: TextInputType.datetime,
               style: TextStyle(fontSize: 24.0, color: Colors.black),
@@ -74,6 +84,7 @@ class EventCreatorState extends State<EventCreator> {
               onSaved: (DateTime value) => this._eventData.time = value,
             ),
             new TextFormField(
+              initialValue: widget._event != null ? widget._event.summary : '',
               decoration: InputDecoration(
                 labelText: 'Summary / Notes',
                 contentPadding: EdgeInsets.all(10.0),
@@ -114,10 +125,11 @@ class EventCreatorState extends State<EventCreator> {
     if (currentUser != null && this._formKey.currentState.validate()) {
       _formKey.currentState.save(); // Save our form now.
 
-      Firestore.instance.collection('calendar_events').document()
+      Firestore.instance.collection('calendar_events').document(widget._event != null ? widget._event.documentId : null)
           .setData({'name': _eventData.title, 'summary': _eventData.summary,
         'time': _eventData.time, 'email': currentUser.email});
     } else {
+      // TODO: Need to implement some error logic / dialog
       print('Error saving data to firestore.');
     }
 

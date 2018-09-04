@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_app/event_creator.dart';
+import 'package:flutter_widget_app/event_model.dart';
 
 class EventsView extends StatefulWidget {
   final DateTime eventDate;
@@ -60,26 +62,43 @@ class _EventsViewState extends State<EventsView> {
               else {
                 return ListView(
                   children: snapshot.data.documents.map((document) {
-                    return new Card(
-                      color: Colors.orangeAccent,
-                      elevation: 5.0,
-                      shape: Border.all(color: Colors.black),
-                      child: new Column(
-//                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new Container(
-                            padding: EdgeInsets.all(10.0),
-                            child:  new Text('Event: ' + document.data['name'],
-                              style: TextStyle(color: Colors.black, fontSize: 18.0,),),
+                    return new GestureDetector(
+                      onTap: () => _onCardClicked(document),
+                      child: new Card(
+                        color: Colors.orangeAccent,
+                        elevation: 10.0,
+                        shape: Border.all(color: Colors.black),
+                        child: new Row(
+                          children: <Widget>[
+                            new Expanded(
+                              child:
+                              new Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  new Container(
+                                    padding: EdgeInsets.all(10.0),
+                                    child:  new Text('Event: ' + document.data['name'],
+                                      style: TextStyle(color: Colors.black, fontSize: 18.0,),),
+                                  ),
+                                  new Container(
+                                    padding: EdgeInsets.all(10.0),
+                                    child:  new Text('Summary: ' + document.data['summary'],
+                                        style: TextStyle(color: Colors.black, fontSize: 18.0)),
+                                  ),
+                              ],
+                            ),
                           ),
                           new Container(
-                            padding: EdgeInsets.all(10.0),
-                            child:  new Text('Summary: ' + document.data['summary'],
-                              style: TextStyle(color: Colors.black, fontSize: 18.0)),
+                            child: new IconButton(
+                              iconSize: 30.0,
+                              padding: EdgeInsets.all(5.0),
+                              icon: new Icon(Icons.delete),
+                              onPressed: () => _deleteEvent(document))
                           ),
-                        ],
-                      ),
+
+                          ],
+                        ),
+                      )
                     );
                   }).toList(),
                 );
@@ -90,4 +109,17 @@ class _EventsViewState extends State<EventsView> {
     );
   }
 
+  void _onCardClicked(DocumentSnapshot document) {
+    Event event = new Event(document.data['name'], document.data['summary'],
+        document.data['time'], document.documentID);
+    Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
+      => new EventCreator(event)));
+  }
+
+
+  void _deleteEvent(DocumentSnapshot document) {
+    setState(() {
+      Firestore.instance.collection('calendar_events').document(document.documentID).delete();
+    });
+  }
 }
