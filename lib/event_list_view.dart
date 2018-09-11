@@ -7,21 +7,21 @@ import 'package:flutter_widget_app/event_creator.dart';
 import 'package:flutter_widget_app/event_model.dart';
 
 class EventsView extends StatefulWidget {
-  final DateTime eventDate;
+  final DateTime _eventDate;
 
-  EventsView(DateTime date) : eventDate = date;
+  EventsView(DateTime date) : _eventDate = date;
 
   @override
   State<StatefulWidget> createState() {
-    return _EventsViewState(eventDate);
+    return EventsViewState(_eventDate);
   }
 }
 
-class _EventsViewState extends State<EventsView> {
+class EventsViewState extends State<EventsView> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final DateTime _eventDate;
 
-  _EventsViewState(DateTime date) : _eventDate = date;
+  EventsViewState(DateTime date) : _eventDate = date;
 
   Future<QuerySnapshot> _getEvents() async {
     FirebaseUser currentUser = await _auth.currentUser();
@@ -65,7 +65,7 @@ class _EventsViewState extends State<EventsView> {
                     return new GestureDetector(
                       onTap: () => _onCardClicked(document),
                       child: new Card(
-                        color: Colors.orangeAccent,
+                        color: Colors.yellow,
                         elevation: 10.0,
                         shape: Border.all(color: Colors.black),
                         child: new Row(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class _LoginData {
+class LoginData {
   String email = '';
   String password = '';
 }
@@ -15,7 +15,8 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-  _LoginData _data = new _LoginData();
+  LoginData _data = new LoginData();
+  bool _isLoading = false;
 
   String validateEmail(String value) {
     if (value.isEmpty || !value.contains('@')) {
@@ -38,9 +39,9 @@ class _SplashPageState extends State<SplashPage> {
     if (this._formKey.currentState.validate()) {
        _formKey.currentState.save(); // Save our form now.
 
-      print('Printing the login data.');
-      print('Email: ${_data.email}');
-      print('Password: ${_data.password}');
+       setState(() {
+         _isLoading = true;
+       });
 
       try {
         user = await _auth.signInWithEmailAndPassword(email: _data.email,
@@ -54,7 +55,10 @@ class _SplashPageState extends State<SplashPage> {
         final FirebaseUser currentUser = await _auth.currentUser();
         assert(user.uid == currentUser.uid);
 
-        print('signInEmail succeeded: $user');
+        print('signInEmail succeeded');
+        setState(() {
+          _isLoading = false;
+        });
 
         // Navigate to main calendar view
         _navigateToCalendarView();
@@ -87,7 +91,7 @@ class _SplashPageState extends State<SplashPage> {
         final FirebaseUser currentUser = await _auth.currentUser();
         assert(user.uid == currentUser.uid);
 
-        print('signInEmail succeeded: $user');
+        print('signInEmail succeeded');
 
         // Navigate to main calendar view
         _navigateToCalendarView();
@@ -110,67 +114,106 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      body: Container (
-        padding: EdgeInsets.all(20.0),
-        alignment: Alignment.center,
-        child: new Form(
-          key: this._formKey,
-            child: new Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                new TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: new InputDecoration(
-                    hintText: 'firstname.lastname@gmail.com',
-                    labelText: 'Email address',
-                  ),
-                  style: TextStyle(fontSize: 24.0, color: Colors.black),
-                  validator: this.validateEmail,
-                  onSaved: (String value) {
-                    this._data.email = value;
-                  },
-                ),
-                new TextFormField(
-                  obscureText: true,
-                  decoration: new InputDecoration(
-                    hintText: 'Password',
-                    labelText: 'Please enter your password',
-                  ),
-                  style: TextStyle(fontSize: 24.0, color: Colors.black),
-                  validator: this.validatePassword,
-                  onSaved: (String value) {
-                    this._data.password = value;
-                  },
-                ),
-                new Container(
-                  width: MediaQuery.of(context).size.width,
-                  margin: new EdgeInsets.only(top: 20.0),
-                  child: new RaisedButton(
-                    child: new Text(
-                      'Login',
-                      style: new TextStyle(fontSize: 24.0, color: Colors.white),
-                    ),
-                    color: Colors.blue,
-                    onPressed: this.signInWithEmail
-                  ),
-                ),
-                new Container(
-                  width: MediaQuery.of(context).size.width,
-                  margin: new EdgeInsets.only(top: 20.0),
-                  child: new RaisedButton(
-                    child: new Text(
-                      'Sign Up',
-                      style: new TextStyle(fontSize: 24.0, color: Colors.white),
-                    ),
-                    color: Colors.blue,
-                    onPressed: this.signUpWithEmail
-                  ),
-                ),
-              ],
-            )
+    print('build().....');
+    final emailWidget = new TextFormField(
+      keyboardType: TextInputType.emailAddress,
+      decoration: new InputDecoration(
+          hintText: 'firstname.lastname@gmail.com',
+          labelText: 'Email address',
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0)
+          )
+      ),
+      style: TextStyle(fontSize: 24.0, color: Colors.black),
+      validator: this.validateEmail,
+      onSaved: (String value) {
+        this._data.email = value;
+      },
+    );
+
+    final passwordWidget = new TextFormField(
+      obscureText: true,
+      decoration: new InputDecoration(
+          hintText: 'Password',
+          labelText: 'Please enter your password',
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0)
+          )
+      ),
+      style: TextStyle(fontSize: 24.0, color: Colors.black),
+      validator: this.validatePassword,
+      onSaved: (String value) {
+        this._data.password = value;
+      },
+    );
+
+    final loginButton = new Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.0),
+      child: new Material(
+        borderRadius: BorderRadius.circular(30.0),
+        shadowColor: Colors.lightBlueAccent.shade100,
+        child: new MaterialButton(
+            minWidth: 200.0,
+            height: 42.0,
+            color: Colors.lightBlueAccent,
+            onPressed: () {
+              this.signInWithEmail();
+            },
+            child: new Text('Login', style: new TextStyle(fontSize: 24.0, color: Colors.white))
         ),
       ),
+    );
+
+    final signUpButton = new Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.0),
+      child: new Material(
+        borderRadius: BorderRadius.circular(30.0),
+        shadowColor: Colors.lightBlueAccent.shade100,
+        child: new MaterialButton(
+          minWidth: 200.0,
+          height: 42.0,
+          color: Colors.lightBlueAccent,
+          onPressed: this.signUpWithEmail,
+          child: new Text('Sign Up', style: new TextStyle(fontSize: 24.0, color: Colors.white))
+        ),
+      ),
+    );
+
+    final loginImage = new Image.asset('assets/calendar.png',
+      height: 128.0,
+    );
+
+    final loadingSpinner = new Center(
+      heightFactor: null,
+      widthFactor: null,
+      child: new CircularProgressIndicator(),
+    );
+
+    return new Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: ListView(
+          shrinkWrap: true,
+          padding: EdgeInsets.only(left: 24.0, right: 24.0),
+          children: <Widget>[
+            loginImage,
+            SizedBox(height: 16.0),
+            new Form(
+              key: this._formKey,
+              child: new Column(
+                children: <Widget>[
+                  emailWidget,
+                  SizedBox(height: 8.0),
+                  passwordWidget,
+                ],
+              ),
+            ),
+            SizedBox(height: 8.0),
+            _isLoading ? loadingSpinner : loginButton,
+            _isLoading ? loadingSpinner : signUpButton,
+          ],
+        ),
+      )
     );
   }
 }

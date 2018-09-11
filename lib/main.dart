@@ -315,12 +315,12 @@ class CalendarState extends State<MonthView> {
               if (eventCount > 0) {
                 return Container(
                     decoration: new BoxDecoration(
-                      color: Colors.green,
+                      color: Colors.yellow,
                     ),
                     child: new Text(
-                      "Events: $eventCount",
+                      "Events:$eventCount",
                       maxLines: 1,
-                      style: new TextStyle(fontSize: 12.0),
+                      style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 12.0),
                     )
                 );
               } else {
