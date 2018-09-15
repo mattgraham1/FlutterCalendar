@@ -47,7 +47,7 @@ class _SplashPageState extends State<SplashPage> {
         user = await _auth.signInWithEmailAndPassword(email: _data.email,
             password: _data.password);
       } catch (error) {
-        print(error.toString());
+        showErrorDialog(error);
       } finally {
         assert(user != null);
         assert(await user.getIdToken() != null);
@@ -79,11 +79,16 @@ class _SplashPageState extends State<SplashPage> {
 
     if (this._formKey.currentState.validate()) {
       _formKey.currentState.save();
+
+      setState(() {
+        _isLoading = true;
+      });
+
       try {
         user = await _auth.createUserWithEmailAndPassword(
             email: _data.email, password: _data.password);
       } catch (error) {
-        print(error);
+        showErrorDialog(error);
       } finally {
         assert(user != null);
         assert(await user.getIdToken() != null);
@@ -92,11 +97,38 @@ class _SplashPageState extends State<SplashPage> {
         assert(user.uid == currentUser.uid);
 
         print('signInEmail succeeded');
+        setState(() {
+          _isLoading = false;
+        });
 
         // Navigate to main calendar view
         _navigateToCalendarView();
       }
     }
+  }
+
+  void showErrorDialog(error) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return new AlertDialog(
+          title: new Text('Sign Up Error'),
+          content: new Text(error.toString()),
+          actions: <Widget>[
+            new FlatButton(
+              onPressed: () {
+                setState(() {
+                  _isLoading = false;
+                });
+                Navigator.of(context).pop(true);
+              },
+              child: new Text('OK')
+            )
+          ],
+        );
+      }
+    );
   }
 
   void byPassLogin() {
