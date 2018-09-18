@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
@@ -71,6 +72,7 @@ class MonthView extends StatefulWidget {
 
 class CalendarState extends State<MonthView> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   DateTime _dateTime;
   QuerySnapshot _userEventSnapshot;
   int _beginMonthPadding=0;
@@ -78,6 +80,43 @@ class CalendarState extends State<MonthView> {
   CalendarState() {
     _dateTime = DateTime.now();
     setMonthPading();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("******** - onMessage: $message");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("******** - onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("******** - onResume: $message");
+      },
+    );
+
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+    _firebaseMessaging.onIosSettingsRegistered.listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
+
+    _firebaseMessaging.getToken().then((String token) async {
+      assert(token != null);
+      print('push token: ' + token);
+
+      FirebaseUser user = await _auth.currentUser();
+      QuerySnapshot snapshot = await Firestore.instance.collection('users')
+          .where('email', isEqualTo: user.email).getDocuments();
+
+      snapshot.documents.forEach((doc) {
+        Firestore.instance.collection('users').document(doc.documentID)
+          .setData({'email': user.email, 'token': token});
+      });
+    });
   }
 
   void setMonthPading() {

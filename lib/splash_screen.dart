@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -97,6 +98,11 @@ class _SplashPageState extends State<SplashPage> {
         assert(user.uid == currentUser.uid);
 
         print('signInEmail succeeded');
+
+        // Add user to the 'users' collection
+        await Firestore.instance.collection('users').document()
+            .setData({'email': currentUser.email, 'token': ""});
+
         setState(() {
           _isLoading = false;
         });
@@ -129,19 +135,6 @@ class _SplashPageState extends State<SplashPage> {
         );
       }
     );
-  }
-
-  void byPassLogin() {
-    if (_auth.currentUser() != null) {
-      Navigator.of(context).pop();
-    } else {
-      print('Invalid user.');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
