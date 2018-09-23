@@ -204,6 +204,49 @@ class _SplashPageState extends State<SplashPage> {
       ),
     );
 
+    final resetPasswordText = new GestureDetector(
+      onTap: () {
+        _formKey.currentState.save();
+        String resetMessage;
+        if (_data.email.isEmpty) {
+          resetMessage = 'Please enter a email address.';
+        } else {
+          resetMessage = 'Reset password for ' + _data.email;
+        }
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return new AlertDialog(
+              title: new Text('Reset Password'),
+              content: new Text(resetMessage),
+              actions: <Widget>[
+                new FlatButton(
+                    onPressed: () {
+                      if (_data.email.isNotEmpty) {
+                        _auth.sendPasswordResetEmail(email: _data.email);
+                      }
+                      Navigator.of(context).pop(true);
+                    },
+                    child: new Text('OK')
+                ),
+                new FlatButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: new Text("CANCEL"),
+                )
+              ],
+            );
+          }
+        );
+      },
+      child: new Text('Reset Password',textAlign: TextAlign.center,
+        style: new TextStyle(fontSize: 24.0, color: Colors.blue),
+      ),
+    );
+
     final loginImage = new Image.asset('assets/calendar.png',
       height: 128.0,
     );
@@ -236,6 +279,8 @@ class _SplashPageState extends State<SplashPage> {
             SizedBox(height: 8.0),
             _isLoading ? loadingSpinner : loginButton,
             _isLoading ? loadingSpinner : signUpButton,
+            SizedBox(height: 4.0),
+            resetPasswordText,
           ],
         ),
       )

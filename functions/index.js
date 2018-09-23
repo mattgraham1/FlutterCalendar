@@ -11,7 +11,7 @@ const settings = {timestampsInSnapshots: true};
 firestore.settings(settings);
 
 // Check for events within a days range and send notications to the associated tokens.
-exports.firestoreDebug = functions.https.onRequest((request, response) => {
+exports.flutterCalendar = functions.https.onRequest((request, response) => {
   var data = [];
   var emailList = new List();
 
