@@ -14,21 +14,27 @@ firestore.settings(settings);
 exports.flutterCalendar = functions.https.onRequest((request, response) => {
   var data = [];
   var emailList = new List();
+  var now = new Date();
+  data.push('todays date: ' + now);
+  data.push(now.getFullYear());
+  data.push(now.getMonth());
+  data.push(now.getDate());
 
   firestore.collection('calendar_events')
   .get()
   .then(docs => {
+  	emailList.clear();
     docs.forEach(doc => {
       var timestamp = doc.get('time');
       var eventDate = timestamp.toDate();
-      var now = new Date();
-      // data.push(eventDate);
-      // data.push(now);
-
+      data.push('event date: ' + eventDate);
+	  data.push(eventDate.getFullYear());
+	  data.push(eventDate.getMonth());
+	  data.push(eventDate.getDate());
       // Check if we have an event within seven days
       if (eventDate.getFullYear() === now.getFullYear() &&
           eventDate.getMonth() === now.getMonth() &&
-          eventDate.getDay() === now.getDay())
+          eventDate.getDate() === now.getDate())
       {
         // Test of adding emails to a list
         var mail = doc.get('email');
@@ -39,26 +45,33 @@ exports.flutterCalendar = functions.https.onRequest((request, response) => {
       }
     })
 
+    data.push('email list size: ' + emailList.length);
     return emailList;
   })
   // Setup the query to get all the users from the 'users' collection
   .then(emailList => {
-    var query = firestore.collection('users')
-    emailList.forEach(email => {
-      data.push(email);
-      query = query.where('email', '==', email.toString());
-    })
-
-    return query.get();
+  	if(emailList.length > 0) {
+	    var query = firestore.collection('users')
+	    emailList.forEach(email => {
+	      data.push(email);
+	      query = query.where('email', '==', email.toString());
+	    })
+	    return query.get();
+	} else {
+		return null;
+	}
   })
   // Get all the tokens from the 'users' collection
   .then(querySnapshot => {
     var tokenList = [];
-    // data.push('querySnapshot size: ' + querySnapshot.size);
-    querySnapshot.forEach(doc => {
-      tokenList.push(doc.get('token'));
-    })
-    data.push(tokenList);
+
+    if(querySnapshot) {
+	    data.push('querySnapshot size: ' + querySnapshot.size);
+	    querySnapshot.forEach(doc => {
+	      tokenList.push(doc.get('token'));
+	    })
+	    data.push(tokenList);
+	}
 
     return tokenList;
   })
