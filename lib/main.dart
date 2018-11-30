@@ -147,6 +147,8 @@ class CalendarState extends State<MonthView> {
     print("trying to go to the month of today");
     setState(() {
       _dateTime = DateTime.now();
+
+      setMonthPadding();
     });
   }
 
@@ -309,7 +311,6 @@ class CalendarState extends State<MonthView> {
                         scrollDirection: Axis.vertical,
                         children: List.generate(
                             getNumberOfDaysInMonth(_dateTime.month),
-//              children: List.generate(35,
                                 (index) {
                               int dayNumber = index + 1;
                               return new GestureDetector(
@@ -321,7 +322,6 @@ class CalendarState extends State<MonthView> {
                                       margin: const EdgeInsets.all(2.0),
                                       padding: const EdgeInsets.all(1.0),
                                       decoration: new BoxDecoration(
-//                        color: Colors.red, // Color for debugging layout
                                           border: new Border.all(
                                               color: Colors.grey)),
                                       child: new Column(
@@ -406,7 +406,7 @@ class CalendarState extends State<MonthView> {
     if (eventCount > 0) {
       return Container(
           decoration: new BoxDecoration(
-            color: Colors.yellow,
+            color: Colors.amberAccent,
           ),
           child: new Text(
             "Events:$eventCount",

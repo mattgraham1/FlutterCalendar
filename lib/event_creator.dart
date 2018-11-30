@@ -34,9 +34,42 @@ class EventCreatorState extends State<EventCreator> {
 
   @override
   Widget build(BuildContext context) {
+
+    final titleWidget = new TextFormField(
+      keyboardType: TextInputType.text,
+      decoration: new InputDecoration(
+          hintText: 'Event Name',
+          labelText: 'Event Title',
+          contentPadding: EdgeInsets.all(16.0),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+          )
+      ),
+      initialValue: widget._event != null ? widget._event.title : '',
+      style: TextStyle(fontSize: 20.0, color: Colors.black),
+      validator: this._validateTitle,
+      onSaved: (String value) => this._eventData.title = value,
+    );
+
+    final notesWidget = new TextFormField(
+      keyboardType: TextInputType.multiline,
+      maxLines: 4,
+      decoration: InputDecoration(
+        hintText: 'Notes',
+        labelText: 'Enter your notes here',
+        contentPadding: EdgeInsets.all(16.0),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0)
+        )
+      ),
+      initialValue: widget._event != null ? widget._event.summary : '',
+      style: TextStyle(fontSize: 20.0, color: Colors.black),
+      onSaved: (String value) => this._eventData.summary = value,
+    );
+    
     return new Scaffold(
       appBar: new AppBar(
-        leading: new CloseButton(),
+        leading: new BackButton(),
         title: new Text('Create New Event'),
         actions: <Widget>[
           new Container(
@@ -55,46 +88,36 @@ class EventCreatorState extends State<EventCreator> {
       ),
       body: new Form(
         key: this._formKey,
-        child: new Column(
-          children: <Widget>[
-            new TextFormField(
-              decoration: InputDecoration(
-                  labelText: 'Event Title',
-                  contentPadding: EdgeInsets.all(10.0)
+        child: new Container(
+          padding: EdgeInsets.all(10.0),
+          child: new Column(
+            children: <Widget>[
+              titleWidget,
+              SizedBox(height: 16.0),
+              new DateTimePickerFormField(
+                initialDate: widget._event != null ? widget._event.time : DateTime.now(),
+                initialValue: widget._event != null ? widget._event.time : DateTime.now(),
+                format: dateFormat,
+                keyboardType: TextInputType.datetime,
+                style: TextStyle(fontSize: 20.0, color: Colors.black),
+                decoration: InputDecoration(
+                    labelText: 'Event Date',
+                    hintText: 'November 1, 2018 at 5:00PM',
+                    contentPadding: EdgeInsets.all(20.0),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0)
+                    )
+                ),
+                autovalidate: false,
+                validator: this._validateDate,
+                onSaved: (DateTime value) => this._eventData.time = value,
               ),
-              initialValue: widget._event != null ? widget._event.title : '',
-              keyboardType: TextInputType.text,
-              style: TextStyle(fontSize: 24.0, color: Colors.black),
-              autovalidate: false,
-              validator: this._validateTitle,
-              onSaved: (String value) => this._eventData.title = value,
-            ),
-            new DateTimePickerFormField(
-              initialDate: widget._event != null ? widget._event.time : DateTime.now(),
-              initialValue: widget._event != null ? widget._event.time : DateTime.now(),
-              format: dateFormat,
-              keyboardType: TextInputType.datetime,
-              style: TextStyle(fontSize: 24.0, color: Colors.black),
-              decoration: InputDecoration(
-                  labelText: 'Event Date',
-                  contentPadding: EdgeInsets.all(10.0)
-              ),
-              autovalidate: false,
-              validator: this._validateDate,
-              onSaved: (DateTime value) => this._eventData.time = value,
-            ),
-            new TextFormField(
-              initialValue: widget._event != null ? widget._event.summary : '',
-              decoration: InputDecoration(
-                labelText: 'Summary / Notes',
-                contentPadding: EdgeInsets.all(10.0),
-              ),
-              keyboardType: TextInputType.multiline,
-              style: TextStyle(fontSize: 24.0, color: Colors.black),
-              onSaved: (String value) => this._eventData.summary = value,
-            ),
-          ],
+              SizedBox(height: 16.0),
+              notesWidget,
+            ],
+          ),
         )
+
       ),
     );
   }

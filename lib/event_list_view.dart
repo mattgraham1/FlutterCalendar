@@ -44,7 +44,7 @@ class EventsViewState extends State<EventsView> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        leading: new CloseButton(),
+        leading: new BackButton(),
         title: new Text(_eventDate.month.toString() + '/' + _eventDate.day.toString()
                         + '/' + _eventDate.year.toString() + ' Events'),
       ),
@@ -65,7 +65,7 @@ class EventsViewState extends State<EventsView> {
                     return new GestureDetector(
                       onTap: () => _onCardClicked(document),
                       child: new Card(
-                        color: Colors.yellow,
+                        color: Colors.amberAccent,
                         elevation: 10.0,
                         shape: Border.all(color: Colors.black),
                         child: new Row(
