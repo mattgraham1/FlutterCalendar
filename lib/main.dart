@@ -348,7 +348,7 @@ class CalendarState extends State<MonthView> {
   }
 
   Align buildDayNumberWidget(int dayNumber) {
-    print('buildDayNumberWidget, dayNumber: $dayNumber');
+    //print('buildDayNumberWidget, dayNumber: $dayNumber');
     if ((dayNumber-_beginMonthPadding) == DateTime.now().day
         && _dateTime.month == DateTime.now().month
         && _dateTime.year == DateTime.now().year) {

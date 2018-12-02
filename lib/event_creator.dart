@@ -151,12 +151,11 @@ class EventCreatorState extends State<EventCreator> {
       Firestore.instance.collection('calendar_events').document(widget._event != null ? widget._event.documentId : null)
           .setData({'name': _eventData.title, 'summary': _eventData.summary,
         'time': _eventData.time, 'email': currentUser.email});
-    } else {
-      // TODO: Need to implement some error logic / dialog
-      print('Error saving data to firestore.');
-    }
 
-    Navigator.maybePop(context);
+      Navigator.maybePop(context);
+    } else {
+      print('Error validating data and saving to firestore.');
+    }
   }
 
 }

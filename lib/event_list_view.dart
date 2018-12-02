@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_app/event_creator.dart';
 import 'package:flutter_widget_app/event_model.dart';
+import 'package:intl/intl.dart';
 
 class EventsView extends StatefulWidget {
   final DateTime _eventDate;
@@ -48,6 +49,10 @@ class EventsViewState extends State<EventsView> {
         title: new Text(_eventDate.month.toString() + '/' + _eventDate.day.toString()
                         + '/' + _eventDate.year.toString() + ' Events'),
       ),
+      floatingActionButton: new FloatingActionButton(
+        onPressed: _onFabClicked,
+        child: new Icon(Icons.add),
+      ),
       body: FutureBuilder(
         future: _getEvents(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -62,6 +67,9 @@ class EventsViewState extends State<EventsView> {
               else {
                 return ListView(
                   children: snapshot.data.documents.map((document) {
+                    DateTime _eventTime = document.data['time'];
+                    var eventDateFormatter = new DateFormat("MMMM d, yyyy 'at' h:mma");
+
                     return new GestureDetector(
                       onTap: () => _onCardClicked(document),
                       child: new Card(
@@ -79,6 +87,11 @@ class EventsViewState extends State<EventsView> {
                                     padding: EdgeInsets.all(10.0),
                                     child:  new Text('Event: ' + document.data['name'],
                                       style: TextStyle(color: Colors.black, fontSize: 18.0,),),
+                                  ),
+                                  new Container(
+                                    padding: EdgeInsets.all(10.0),
+                                    child:  new Text('Time: ' + eventDateFormatter.format(_eventTime),
+                                        style: TextStyle(color: Colors.black, fontSize: 18.0)),
                                   ),
                                   new Container(
                                     padding: EdgeInsets.all(10.0),
@@ -121,5 +134,17 @@ class EventsViewState extends State<EventsView> {
     setState(() {
       Firestore.instance.collection('calendar_events').document(document.documentID).delete();
     });
+  }
+
+  void _onFabClicked() {
+    DateTime _createDateTime = new DateTime(_eventDate.year, _eventDate.month, _eventDate.day,
+                                            DateTime.now().hour, DateTime.now().minute);
+
+    Event _event = new Event("", "",_createDateTime, null);
+
+    Navigator.push(context, MaterialPageRoute(
+            builder: (context) => EventCreator(_event)
+        )
+    );
   }
 }
