@@ -277,8 +277,18 @@ class _SplashPageState extends State<SplashPage> {
               ),
             ),
             SizedBox(height: 8.0),
-            _isLoading ? loadingSpinner : loginButton,
-            _isLoading ? loadingSpinner : signUpButton,
+            _isLoading ? loadingSpinner:
+                Container(
+                  height: 120.0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      loginButton,
+                      signUpButton
+                    ],
+                  ),
+
+                ),
             SizedBox(height: 4.0),
             resetPasswordText,
           ],
