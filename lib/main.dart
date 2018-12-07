@@ -411,7 +411,7 @@ class CalendarState extends State<MonthView> {
           child: new Text(
             "Events:$eventCount",
             maxLines: 1,
-            style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 12.0),
+            style: new TextStyle(fontWeight: FontWeight.normal,fontSize: 10.0),
           )
       );
     } else {

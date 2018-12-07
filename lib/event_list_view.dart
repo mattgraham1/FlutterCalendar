@@ -59,7 +59,7 @@ class EventsViewState extends State<EventsView> {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
             case ConnectionState.waiting:
-              return new CircularProgressIndicator();
+              return new LinearProgressIndicator();
             case ConnectionState.done:
             default:
               if (snapshot.hasError)

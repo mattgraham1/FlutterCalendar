@@ -1,6 +1,6 @@
 # flutter_widget_app
 
-A new Flutter application implementing a simple mobile calendar app.
+A new Flutter application implementing a simple mobile calendar app for basic events.
 
 ## Getting Started
 
