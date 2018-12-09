@@ -120,7 +120,7 @@ class _SplashPageState extends State<SplashPage> {
       builder: (BuildContext context) {
         return new AlertDialog(
           title: new Text('Sign Up Error'),
-          content: new Text(error.toString()),
+          content: new Text(error.message),
           actions: <Widget>[
             new FlatButton(
               onPressed: () {

@@ -327,7 +327,7 @@ class CalendarState extends State<MonthView> {
                                       child: new Column(
                                         children: <Widget>[
                                           buildDayNumberWidget(dayNumber),
-                                          buildDayEventInfoWidget(dayNumber),
+                                          buildDayEventInfoWidget(dayNumber)
                                         ],
                                       )));
                             }),
@@ -343,7 +343,6 @@ class CalendarState extends State<MonthView> {
               }
             }
         )
-
     );
   }
 
@@ -367,7 +366,7 @@ class CalendarState extends State<MonthView> {
           child: new Text(
             (dayNumber - _beginMonthPadding).toString(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black, fontSize: 18.0),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18.0),
           ),
         ),
       );
@@ -396,7 +395,7 @@ class CalendarState extends State<MonthView> {
     _userEventSnapshot.documents.forEach((doc) {
       eventDate = doc.data['time'];
       if (eventDate != null
-          && eventDate.day == dayNumber-_beginMonthPadding
+          && eventDate.day == dayNumber - _beginMonthPadding
           && eventDate.month == _dateTime.month
           && eventDate.year == _dateTime.year) {
         eventCount++;
@@ -404,16 +403,19 @@ class CalendarState extends State<MonthView> {
     });
 
     if (eventCount > 0) {
-      return Container(
-          decoration: new BoxDecoration(
-            color: Colors.amberAccent,
+        return new Expanded(
+          child:
+          FittedBox(
+            alignment: Alignment.topLeft,
+            fit: BoxFit.contain,
+            child: new Text(
+              "Events:$eventCount",
+              maxLines: 1,
+              style: new TextStyle(fontWeight: FontWeight.normal,fontSize: 10.0,
+                  background: Paint()..color = Colors.amberAccent),
+            ),
           ),
-          child: new Text(
-            "Events:$eventCount",
-            maxLines: 1,
-            style: new TextStyle(fontWeight: FontWeight.normal,fontSize: 10.0),
-          )
-      );
+        );
     } else {
       return new Container();
     }
