@@ -46,7 +46,7 @@ class EventCreatorState extends State<EventCreator> {
           )
       ),
       initialValue: widget._event != null ? widget._event.title : '',
-      style: TextStyle(fontSize: 20.0, color: Colors.black),
+      style: Theme.of(context).textTheme.headline,
       validator: this._validateTitle,
       onSaved: (String value) => this._eventData.title = value,
     );
@@ -63,7 +63,7 @@ class EventCreatorState extends State<EventCreator> {
         )
       ),
       initialValue: widget._event != null ? widget._event.summary : '',
-      style: TextStyle(fontSize: 20.0, color: Colors.black),
+      style: Theme.of(context).textTheme.headline,
       onSaved: (String value) => this._eventData.summary = value,
     );
     

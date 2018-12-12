@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Calendar',
+      title: 'Events Calendar',
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -132,7 +132,7 @@ class CalendarState extends State<MonthView> {
       QuerySnapshot userEvents = await Firestore.instance
           .collection('calendar_events')
           .where(
-          'time', isGreaterThanOrEqualTo: new DateTime(2018, _dateTime.month))
+          'time', isGreaterThanOrEqualTo: new DateTime(_dateTime.year, _dateTime.month))
           .where('email', isEqualTo: currentUser.email)
           .getDocuments();
 
@@ -198,8 +198,12 @@ class CalendarState extends State<MonthView> {
     return new Scaffold(
         backgroundColor: Colors.white,
         appBar: new AppBar(
-          title: new Text(
-              getMonthName(_dateTime.month) + " " + _dateTime.year.toString()),
+          title: new FittedBox(
+                fit: BoxFit.contain,
+                child: new Text(
+                    getMonthName(_dateTime.month) + " " + _dateTime.year.toString(),
+                  )
+              ),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -229,7 +233,10 @@ class CalendarState extends State<MonthView> {
               itemBuilder: (BuildContext context) => <PopupMenuItem<_AppBarMenu>>[
                 const PopupMenuItem(
                   value: _AppBarMenu.logout,
-                  child: Text('Logout'),
+                  child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Text('Logout', textAlign: TextAlign.center,),
+                  ),
                 )
               ],
             ),
@@ -366,7 +373,7 @@ class CalendarState extends State<MonthView> {
           child: new Text(
             (dayNumber - _beginMonthPadding).toString(),
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18.0),
+            style: Theme.of(context).textTheme.title,
           ),
         ),
       );
@@ -377,11 +384,11 @@ class CalendarState extends State<MonthView> {
         child: Container(
           width: 35.0, // Should probably calculate these values
           height: 35.0,
-          padding: EdgeInsets.all(5.0),
+          padding: EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
           child: new Text(
             dayNumber <= _beginMonthPadding ? ' ' : (dayNumber - _beginMonthPadding).toString(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black, fontSize: 18.0),
+            style: Theme.of(context).textTheme.headline,
           ),
         ),
       );
@@ -411,7 +418,7 @@ class CalendarState extends State<MonthView> {
             child: new Text(
               "Events:$eventCount",
               maxLines: 1,
-              style: new TextStyle(fontWeight: FontWeight.normal,fontSize: 10.0,
+              style: new TextStyle(fontWeight: FontWeight.normal,
                   background: Paint()..color = Colors.amberAccent),
             ),
           ),

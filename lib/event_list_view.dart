@@ -30,8 +30,8 @@ class EventsViewState extends State<EventsView> {
     if (currentUser != null) {
       QuerySnapshot events = await Firestore.instance
           .collection('calendar_events')
-          .where('time', isGreaterThan: new DateTime(2018, _eventDate.month, _eventDate.day-1, 23, 59, 59))
-          .where('time', isLessThan: new DateTime(2018, _eventDate.month, _eventDate.day+1))
+          .where('time', isGreaterThan: new DateTime(_eventDate.year, _eventDate.month, _eventDate.day-1, 23, 59, 59))
+          .where('time', isLessThan: new DateTime(_eventDate.year, _eventDate.month, _eventDate.day+1))
           .where('email', isEqualTo: currentUser.email)
           .getDocuments();
 
@@ -86,17 +86,20 @@ class EventsViewState extends State<EventsView> {
                                   new Container(
                                     padding: EdgeInsets.all(10.0),
                                     child:  new Text('Event: ' + document.data['name'],
-                                      style: TextStyle(color: Colors.black, fontSize: 18.0,),),
+                                      style: Theme.of(context).textTheme.headline,
+                                    ),
                                   ),
                                   new Container(
                                     padding: EdgeInsets.all(10.0),
                                     child:  new Text('Time: ' + eventDateFormatter.format(_eventTime),
-                                        style: TextStyle(color: Colors.black, fontSize: 18.0)),
+                                        style: Theme.of(context).textTheme.headline
+                                    ),
                                   ),
                                   new Container(
                                     padding: EdgeInsets.all(10.0),
                                     child:  new Text('Summary: ' + document.data['summary'],
-                                        style: TextStyle(color: Colors.black, fontSize: 18.0)),
+                                        style: Theme.of(context).textTheme.headline
+                                    ),
                                   ),
                               ],
                             ),
