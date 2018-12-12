@@ -143,13 +143,13 @@ class _SplashPageState extends State<SplashPage> {
     final emailWidget = new TextFormField(
       keyboardType: TextInputType.emailAddress,
       decoration: new InputDecoration(
-          hintText: 'firstname.lastname@gmail.com',
+          hintText: 'email@gmail.com',
           labelText: 'Email address',
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(32.0)
           )
       ),
-      style: TextStyle(fontSize: 24.0, color: Colors.black),
+      style: TextStyle(fontSize: 20.0, color: Colors.black),
       validator: this.validateEmail,
       onSaved: (String value) {
         this._data.email = value;
@@ -165,7 +165,7 @@ class _SplashPageState extends State<SplashPage> {
               borderRadius: BorderRadius.circular(32.0)
           )
       ),
-      style: TextStyle(fontSize: 24.0, color: Colors.black),
+      style: TextStyle(fontSize: 20.0, color: Colors.black),
       validator: this.validatePassword,
       onSaved: (String value) {
         this._data.password = value;
