@@ -6,9 +6,7 @@ Google Play Store Link: https://play.google.com/store/apps/details?id=com.graham
 
 cron-job link: https://cron-job.org
 
+![Screenshot1](Login.png)
 
+![Screenshot2](events_calendar.png)
 
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
