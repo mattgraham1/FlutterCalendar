@@ -5,10 +5,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:simple_permissions/simple_permissions.dart';
+import 'package:flutter_widget_app/find_contacts.dart';
 
 import 'splash_screen.dart';
 import 'event_creator.dart';
 import 'event_list_view.dart';
+import 'contacts.dart';
 
 enum _AppBarMenu {logout}
 
@@ -36,6 +39,8 @@ class MyApp extends StatelessWidget {
         '/splash': (context) => SplashPage(),
         '/calendar': (context) => MyApp(),
         '/event_creator': (context) => EventCreator(null),
+        '/find_contacts': (context) => PhoneContacts(),
+        '/calendar_contacts': (context) => CalendarContacts(),
       },
     );
   }
@@ -55,7 +60,7 @@ class MyApp extends StatelessWidget {
               if(snapshot.data == null)
                 return SplashPage();
               else
-                return MonthView();
+                return HomePage();
             }
         }
       }
@@ -63,14 +68,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MonthView extends StatefulWidget {
+class HomePage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return CalendarState();
   }
 }
 
-class CalendarState extends State<MonthView> {
+class CalendarState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   DateTime _dateTime;
@@ -184,6 +189,12 @@ class CalendarState extends State<MonthView> {
     Navigator.pushNamed(context, '/event_creator');
   }
 
+  int _selectedIndex = 0;
+  final _widgetOptions = [
+    Text('Index 0: Home'),
+    Text('Index 1: Business'),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final int numWeekDays = 7;
@@ -192,7 +203,7 @@ class CalendarState extends State<MonthView> {
     /*24 is for notification bar on Android*/
     /*28 is for weekday labels of the row*/
     // 55 is for iPhoneX clipping issue.
-    final double itemHeight = (size.height - kToolbarHeight-24-28-55) / 6;
+    final double itemHeight = (size.height - kToolbarHeight-kBottomNavigationBarHeight-24-28-55) / 6;
     final double itemWidth = size.width / numWeekDays;
 
     return new Scaffold(
@@ -245,6 +256,15 @@ class CalendarState extends State<MonthView> {
         floatingActionButton: new FloatingActionButton(
           onPressed: _onFabClicked,
           child: new Icon(Icons.add),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: <BottomNavigationBarItem>[
+            BottomNavigationBarItem(icon: Icon(Icons.event), title: Text('Events')),
+            BottomNavigationBarItem(icon: Icon(Icons.contacts), title: Text('Contacts')),
+          ],
+          currentIndex: _selectedIndex,
+          fixedColor: Colors.deepPurple,
+          onTap: _onBottomBarItemTapped,
         ),
         body:
         new FutureBuilder(
@@ -514,5 +534,38 @@ class CalendarState extends State<MonthView> {
         Navigator.of(context).pushNamedAndRemoveUntil('/splash', (Route<dynamic> route) => false);
         break;
     }
+  }
+
+  Future _onBottomBarItemTapped(int index) async {
+    bool permissionGranted = await _checkAndRequestContactsPermission();
+    if (!permissionGranted)
+      return;
+
+    switch(index) {
+      case 0:
+        break;
+      case 1:
+        Navigator.pushNamed(context, '/calendar_contacts');
+        break;
+    }
+  }
+
+  Future<bool> _checkAndRequestContactsPermission() async {
+    Permission permission = Permission.ReadContacts;
+    bool permissionCheck = await SimplePermissions.checkPermission(permission);
+
+    if (!permissionCheck) {
+      print("Read contact permission not granted");
+
+      final requestPermissionResponse = await SimplePermissions.requestPermission(permission);
+      print("permission request result is " + requestPermissionResponse.toString());
+
+      if(requestPermissionResponse != PermissionStatus.authorized) {
+        print("Permission NOT granted.");
+        return false;
+      }
+    }
+
+    return true;
   }
 }
