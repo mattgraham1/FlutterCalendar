@@ -5,13 +5,14 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_widget_app/contact_creator.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 import 'package:flutter_widget_app/find_contacts.dart';
 
 import 'splash_screen.dart';
 import 'event_creator.dart';
-import 'event_list_view.dart';
-import 'contacts.dart';
+import 'event_view.dart';
+import 'contacts_view.dart';
 
 enum _AppBarMenu {logout}
 
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         '/calendar': (context) => MyApp(),
         '/event_creator': (context) => EventCreator(null),
         '/find_contacts': (context) => PhoneContacts(),
+        '/add_contact': (contaxt) => ContactCreator(),
         '/calendar_contacts': (context) => CalendarContacts(),
       },
     );
