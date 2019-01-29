@@ -1,25 +1,43 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_app/gift_creator.dart';
 import 'package:flutter_widget_app/global_contants.dart';
 
-class ContactDetails extends StatelessWidget {
+class ContactDetails extends StatefulWidget {
   final String name;
   final String userDocumentId;
   final String contactDocumentId;
-
+  
   ContactDetails({this.name, this.userDocumentId, this.contactDocumentId});
+  
+  @override
+  State<StatefulWidget> createState() {
+    return new _ContactDetailsState(name, userDocumentId, contactDocumentId);
+  }
+}
+
+class _ContactDetailsState extends State<ContactDetails> {
+  final String _name;
+  final String _userDocumentId;
+  final String _contactDocumentId;
+
+  _ContactDetailsState(this._name, this._userDocumentId, this._contactDocumentId);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: new AppBar(
         leading: new BackButton(),
         title: Hero(
-          tag: name,
-          child: new Text(name + ' ' + 'History', style: Theme.of(context).textTheme.title.copyWith(color: Colors.white)),
+          tag: _name,
+          child: new Text(_name + ' ' + 'History', style: Theme.of(context).textTheme.title.copyWith(color: Colors.white)),
         ),
       ),
-      backgroundColor: Colors.white,
+      floatingActionButton: new FloatingActionButton(
+        onPressed: _onFabClicked,
+        child: new Icon(Icons.add),
+      ),
       body: FutureBuilder<QuerySnapshot>(
         future: _getContactGifts(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -40,7 +58,7 @@ class ContactDetails extends StatelessWidget {
                   final int _cost = giftDocument.data['cost'];
                   return ListTile(
                     onTap: () {
-                      print('gift list item clicked.');
+                      //print('gift list item clicked.');
                     },
                     leading: CircleAvatar(
                         backgroundColor: Colors.orangeAccent,
@@ -57,7 +75,13 @@ class ContactDetails extends StatelessWidget {
                           Text('Cost: ' + _cost.toString(), style: Theme.of(context).textTheme.title,),
                         ],
                       )),
-                    ],)
+                    ],),
+                    trailing: new IconButton(
+                        iconSize: 30.0,
+                        padding: EdgeInsets.all(5.0),
+                        icon: new Icon(Icons.delete),
+                        color: Colors.black,
+                        onPressed: () => _deleteContact(giftDocument)),
                   );
                 },
               );
@@ -69,12 +93,30 @@ class ContactDetails extends StatelessWidget {
 
   Future<QuerySnapshot> _getContactGifts() async {
     QuerySnapshot snapshot = await Firestore.instance.collection(Constants.usersCollectionId)
-        .document(userDocumentId)
+        .document(_userDocumentId)
         .collection(Constants.calendarContactsCollectionId)
-        .document(contactDocumentId)
+        .document(_contactDocumentId)
         .collection(Constants.contactGiftsCollectionId)
         .getDocuments();
 
     return snapshot;
+  }
+
+  void _deleteContact(DocumentSnapshot giftDocument) {
+    setState(() {
+      Firestore.instance.collection(Constants.usersCollectionId)
+          .document(_userDocumentId)
+          .collection(Constants.calendarContactsCollectionId)
+          .document(_contactDocumentId)
+          .collection(Constants.contactGiftsCollectionId)
+          .document(giftDocument.documentID)
+          .delete();
+    });
+  }
+
+  void _onFabClicked() {
+    Navigator.push(context, MaterialPageRoute(builder: (_) {
+      return GiftCreator(userDocumentId: _userDocumentId, userContactDocumentId: _contactDocumentId);
+    }));
   }
 }

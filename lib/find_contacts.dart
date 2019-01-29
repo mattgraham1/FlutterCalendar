@@ -30,7 +30,7 @@ class _PhoneContactsState extends State<PhoneContacts> {
     return Scaffold(
       appBar: new AppBar(
         leading: new BackButton(),
-        title: new Text('Find Contacts'),
+        title: new Text('Phone Contacts'),
       ),
       body: SafeArea(
         child: _contacts != null
@@ -47,7 +47,7 @@ class _PhoneContactsState extends State<PhoneContacts> {
           Contact c = _contacts?.elementAt(index);
           return ListTile(
             onTap: () {
-              print("Tapped on tile.");
+              // TODO:
 //                Navigator.of(context).push(MaterialPageRoute(
 //                    builder: (BuildContext context) =>
 //                        ContactDetailsPage(c)));
@@ -58,7 +58,13 @@ class _PhoneContactsState extends State<PhoneContacts> {
                 child: Text(c.displayName.length > 1
                     ? c.displayName?.substring(0, 2)
                     : "")),
-            title: Text(c.displayName ?? ""),
+            title: Text(c.displayName ?? "", style: Theme.of(context).textTheme.title),
+            trailing: new IconButton(
+              onPressed: () => print('add button pressed'),
+              iconSize: 30.0,
+              padding: EdgeInsets.all(5.0),
+              icon: new Icon(Icons.add_circle_outline, color: Colors.black,),
+            ),
           );
         },
       );

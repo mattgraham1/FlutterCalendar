@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_app/contact_creator.dart';
 import 'package:flutter_widget_app/contact_details.dart';
+import 'package:flutter_widget_app/global_contants.dart';
 
 class CalendarContacts extends StatefulWidget {
   @override
@@ -14,12 +16,9 @@ class _CalendarContactsState extends State<CalendarContacts> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final String _usersCollectionId = 'users';
   final String _calContactsCollectionId = 'contacts';
-  final String _giftHistoryCollectionId = 'Gift History';
 
   FirebaseUser _currentUser;
   String _userDocumentId;
-  String _userContactDocumentId;
-
 
   @override
   void initState() {
@@ -30,11 +29,24 @@ class _CalendarContactsState extends State<CalendarContacts> {
   Widget build(BuildContext context) {
 
     return new Scaffold(
+      backgroundColor: Colors.white,
       appBar: new AppBar(
         leading: new BackButton(),
         title: new Text('Contacts'),
       ),
-      backgroundColor: Colors.white,
+      floatingActionButton: new FloatingActionButton(
+        onPressed: _onFabClicked,
+        child: new Icon(Icons.add),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.event), title: Text('Events')),
+          BottomNavigationBarItem(icon: Icon(Icons.contacts), title: Text('Contacts')),
+        ],
+        currentIndex: 1,
+        fixedColor: Colors.deepPurple,
+        onTap: _onBottomBarItemTapped,
+      ),
       body: FutureBuilder<QuerySnapshot>(
         future: _getUserContacts(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -87,9 +99,41 @@ class _CalendarContactsState extends State<CalendarContacts> {
               child: Text(_name.length > 1
                   ? _name?.substring(0, 2)
                   : "")),
-          title: Hero(tag: _name, child: Text(_name, style: Theme.of(context).textTheme.title)) ,
+          title: Hero(tag: _name, child: Text(_name, style: Theme.of(context).textTheme.title)),
+          trailing: new IconButton(
+              iconSize: 30.0,
+              padding: EdgeInsets.all(5.0),
+              icon: new Icon(Icons.delete),
+              color: Colors.black,
+              onPressed: () => _deleteContact(contactDocument)),
         );
       },
     );
+  }
+
+  Future _onBottomBarItemTapped(int index) async {
+    switch(index) {
+      case 0:
+        Navigator.pushNamed(context, '/calendar');
+        break;
+      case 1:
+        break;
+    }
+  }
+
+  void _onFabClicked() {
+    Navigator.push(context, MaterialPageRoute(builder: (_) {
+      return ContactCreator(userDocumentId: _userDocumentId);
+    }));
+  }
+
+  void _deleteContact(DocumentSnapshot contactDocument) {
+    setState(() {
+      Firestore.instance.collection(Constants.usersCollectionId)
+          .document(_userDocumentId)
+          .collection(Constants.calendarContactsCollectionId)
+          .document(contactDocument.documentID)
+          .delete();
+    });
   }
 }
