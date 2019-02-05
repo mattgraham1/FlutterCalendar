@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_app/contact_creator.dart';
@@ -14,11 +15,10 @@ class CalendarContacts extends StatefulWidget {
 
 class _CalendarContactsState extends State<CalendarContacts> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final String _usersCollectionId = 'users';
-  final String _calContactsCollectionId = 'contacts';
-
   FirebaseUser _currentUser;
   String _userDocumentId;
+
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -27,7 +27,6 @@ class _CalendarContactsState extends State<CalendarContacts> {
 
   @override
   Widget build(BuildContext context) {
-
     return new Scaffold(
       backgroundColor: Colors.white,
       appBar: new AppBar(
@@ -47,7 +46,7 @@ class _CalendarContactsState extends State<CalendarContacts> {
         fixedColor: Colors.deepPurple,
         onTap: _onBottomBarItemTapped,
       ),
-      body: FutureBuilder<QuerySnapshot>(
+      body: _isLoading ? new Center(child: new CircularProgressIndicator()) : FutureBuilder<QuerySnapshot>(
         future: _getUserContacts(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError)
@@ -64,7 +63,7 @@ class _CalendarContactsState extends State<CalendarContacts> {
   }
 
   Future<String> _getUserDocumentId() async {
-    QuerySnapshot snapshot = await Firestore.instance.collection(_usersCollectionId)
+    QuerySnapshot snapshot = await Firestore.instance.collection(Constants.usersCollectionId)
         .where('email', isEqualTo: _currentUser.email).getDocuments();
 
     _userDocumentId = snapshot?.documents?.elementAt(0)?.documentID;
@@ -75,9 +74,9 @@ class _CalendarContactsState extends State<CalendarContacts> {
   Future<QuerySnapshot> _getUserContacts() async {
     _currentUser = await _auth.currentUser();
     await _getUserDocumentId();
-    QuerySnapshot snapshot = await Firestore.instance.collection(_usersCollectionId)
+    QuerySnapshot snapshot = await Firestore.instance.collection(Constants.usersCollectionId)
         .document(_userDocumentId)
-        .collection(_calContactsCollectionId)
+        .collection(Constants.calendarContactsCollectionId)
         .getDocuments();
 
     return snapshot;
@@ -127,13 +126,27 @@ class _CalendarContactsState extends State<CalendarContacts> {
     }));
   }
 
-  void _deleteContact(DocumentSnapshot contactDocument) {
+  void _deleteContact(DocumentSnapshot contactDocument) async {
     setState(() {
-      Firestore.instance.collection(Constants.usersCollectionId)
-          .document(_userDocumentId)
-          .collection(Constants.calendarContactsCollectionId)
-          .document(contactDocument.documentID)
-          .delete();
+      _isLoading = true;
     });
+
+    CloudFunctions.instance.call(
+        functionName: 'deleteContactAndSubCollections',
+        parameters: <String, dynamic>{
+          'userDocumentId': _userDocumentId,
+          'contactDocumentId': contactDocument.documentID
+        })
+        .whenComplete( () {
+          setState(() {
+            _isLoading = false;
+          });
+        })
+        .catchError( (e) {
+          print('Error: ' + e.toString());
+          setState(() {
+            _isLoading = false;
+          });
+        });
   }
 }

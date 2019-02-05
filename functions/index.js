@@ -3,6 +3,8 @@ const functions = require('firebase-functions');
 const List = require('collections/list');
 // Initialize the Firebase application with admin credentials
 const admin = require('firebase-admin');
+const firebase_tools = require('firebase-tools');
+
 admin.initializeApp();
 
 // Handle firestore new date format
@@ -97,3 +99,56 @@ exports.flutterCalendar = functions.https.onRequest((request, response) => {
     response.status(501).send('Error from script...');
   });
 });
+
+
+//=============================================================
+
+exports.deleteContactAndSubCollections = functions.https.onCall((data, context) => {
+	console.log('deleteContactAndSubCollections function');
+	const contactDocumentId = data.contactDocumentId;
+  const userDocumentId = data.userDocumentId
+
+	const uid = context.auth.uid;
+	const name = context.auth.token.name || null;
+	const picture = context.auth.token.picture || null;
+	const email = context.auth.token.email || null;
+
+	console.log('userDocumentId: ', userDocumentId);
+  console.log('contactDocumentId: ', contactDocumentId);
+	console.log('uid: ', uid);
+	console.log('name: ', name);
+	console.log('picture: ', picture);
+	console.log('email: ', email);
+
+	// Only allow admin users to execute this function.
+    if (!(uid && context.auth.token && email)) {
+      throw new functions.https.HttpsError(
+        'permission-denied',
+        'Must be a valid user to initiate delete.'
+      );
+    }
+
+    const path = 'users' + "/" + userDocumentId + "/" + 'contacts' + "/" + contactDocumentId;
+    console.log(
+      `User ${context.auth.uid} has requested to delete path ${path}`
+    );
+
+    // Run a recursive delete on the given document or collection path.
+    // The 'token' must be set in the functions config, and can be generated
+    // at the command line by running 'firebase login:ci'.
+    return firebase_tools.firestore
+      .delete(path, {
+        project: process.env.GCLOUD_PROJECT,
+        recursive: true,
+        yes: true,
+        //token: functions.config().fb.token
+      })
+      .then(() => {
+        return {
+          path: path
+        };
+      });
+});
+
+
+

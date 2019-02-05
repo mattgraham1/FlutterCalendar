@@ -57,9 +57,6 @@ class _ContactDetailsState extends State<ContactDetails> {
                   final String _name = giftDocument.data['name'];
                   final int _cost = giftDocument.data['cost'];
                   return ListTile(
-                    onTap: () {
-                      //print('gift list item clicked.');
-                    },
                     leading: CircleAvatar(
                         backgroundColor: Colors.orangeAccent,
                         child: new IconButton(
@@ -102,7 +99,7 @@ class _ContactDetailsState extends State<ContactDetails> {
     return snapshot;
   }
 
-  void _deleteContact(DocumentSnapshot giftDocument) {
+  Future _deleteContact(DocumentSnapshot giftDocument) async {
     setState(() {
       Firestore.instance.collection(Constants.usersCollectionId)
           .document(_userDocumentId)
