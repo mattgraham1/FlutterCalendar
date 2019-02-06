@@ -62,7 +62,8 @@ class _ContactDetailsState extends State<ContactDetails> {
                         child: new IconButton(
                             iconSize: 25.0,
                             padding: EdgeInsets.all(5.0),
-                            icon: new Icon(Icons.card_giftcard, color: Colors.black,),
+                            icon: new Icon(Icons.card_giftcard, color: Colors.black),
+                            onPressed: null,
                         )),
                     title: Row(children: <Widget>[
                       Expanded(child: new Column(

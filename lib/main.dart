@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_widget_app/contact_creator.dart';
-import 'package:simple_permissions/simple_permissions.dart';
-import 'package:flutter_widget_app/find_contacts.dart';
 
 import 'splash_screen.dart';
 import 'event_creator.dart';
@@ -40,7 +38,6 @@ class MyApp extends StatelessWidget {
         '/splash': (context) => SplashPage(),
         '/calendar': (context) => MyApp(),
         '/event_creator': (context) => EventCreator(null),
-        '/find_contacts': (context) => PhoneContacts(),
         '/add_contact': (contaxt) => ContactCreator(),
         '/calendar_contacts': (context) => CalendarContacts(),
       },
@@ -191,12 +188,6 @@ class CalendarState extends State<HomePage> {
     Navigator.pushNamed(context, '/event_creator');
   }
 
-  int _selectedIndex = 0;
-  final _widgetOptions = [
-    Text('Index 0: Home'),
-    Text('Index 1: Business'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final int numWeekDays = 7;
@@ -264,7 +255,7 @@ class CalendarState extends State<HomePage> {
             BottomNavigationBarItem(icon: Icon(Icons.event), title: Text('Events')),
             BottomNavigationBarItem(icon: Icon(Icons.contacts), title: Text('Contacts')),
           ],
-          currentIndex: _selectedIndex,
+          currentIndex: 0,
           fixedColor: Colors.deepPurple,
           onTap: _onBottomBarItemTapped,
         ),
@@ -539,10 +530,6 @@ class CalendarState extends State<HomePage> {
   }
 
   Future _onBottomBarItemTapped(int index) async {
-    bool permissionGranted = await _checkAndRequestContactsPermission();
-    if (!permissionGranted)
-      return;
-
     switch(index) {
       case 0:
         break;
@@ -550,24 +537,5 @@ class CalendarState extends State<HomePage> {
         Navigator.pushNamed(context, '/calendar_contacts');
         break;
     }
-  }
-
-  Future<bool> _checkAndRequestContactsPermission() async {
-    Permission permission = Permission.ReadContacts;
-    bool permissionCheck = await SimplePermissions.checkPermission(permission);
-
-    if (!permissionCheck) {
-      print("Read contact permission not granted");
-
-      final requestPermissionResponse = await SimplePermissions.requestPermission(permission);
-      print("permission request result is " + requestPermissionResponse.toString());
-
-      if(requestPermissionResponse != PermissionStatus.authorized) {
-        print("Permission NOT granted.");
-        return false;
-      }
-    }
-
-    return true;
   }
 }
