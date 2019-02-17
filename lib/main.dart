@@ -5,10 +5,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_widget_app/contact_creator.dart';
+import 'package:flutter_widget_app/global_contants.dart';
 
 import 'splash_screen.dart';
 import 'event_creator.dart';
-import 'event_list_view.dart';
+import 'event_view.dart';
+import 'contacts_view.dart';
 
 enum _AppBarMenu {logout}
 
@@ -36,6 +39,7 @@ class MyApp extends StatelessWidget {
         '/splash': (context) => SplashPage(),
         '/calendar': (context) => MyApp(),
         '/event_creator': (context) => EventCreator(null),
+        '/calendar_contacts': (context) => CalendarContacts(),
       },
     );
   }
@@ -55,7 +59,7 @@ class MyApp extends StatelessWidget {
               if(snapshot.data == null)
                 return SplashPage();
               else
-                return MonthView();
+                return HomePage();
             }
         }
       }
@@ -63,14 +67,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MonthView extends StatefulWidget {
+class HomePage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return CalendarState();
   }
 }
 
-class CalendarState extends State<MonthView> {
+class CalendarState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
   DateTime _dateTime;
@@ -125,7 +129,6 @@ class CalendarState extends State<MonthView> {
   }
 
   Future<QuerySnapshot> _getCalendarData() async {
-    print('getCalendarData() called.');
     FirebaseUser currentUser = await _auth.currentUser();
 
     if (currentUser != null) {
@@ -181,7 +184,7 @@ class CalendarState extends State<MonthView> {
   }
 
   void _onFabClicked() {
-    Navigator.pushNamed(context, '/event_creator');
+    Navigator.pushNamed(context, Constants.eventCreatorRoute);
   }
 
   @override
@@ -192,7 +195,7 @@ class CalendarState extends State<MonthView> {
     /*24 is for notification bar on Android*/
     /*28 is for weekday labels of the row*/
     // 55 is for iPhoneX clipping issue.
-    final double itemHeight = (size.height - kToolbarHeight-24-28-55) / 6;
+    final double itemHeight = (size.height - kToolbarHeight-kBottomNavigationBarHeight-24-28-55) / 6;
     final double itemWidth = size.width / numWeekDays;
 
     return new Scaffold(
@@ -245,6 +248,15 @@ class CalendarState extends State<MonthView> {
         floatingActionButton: new FloatingActionButton(
           onPressed: _onFabClicked,
           child: new Icon(Icons.add),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: <BottomNavigationBarItem>[
+            BottomNavigationBarItem(icon: Icon(Icons.event), title: Text('Events')),
+            BottomNavigationBarItem(icon: Icon(Icons.contacts), title: Text('Contacts')),
+          ],
+          currentIndex: 0,
+          fixedColor: Colors.deepPurple,
+          onTap: _onBottomBarItemTapped,
         ),
         body:
         new FutureBuilder(
@@ -511,7 +523,17 @@ class CalendarState extends State<MonthView> {
     switch(value) {
       case _AppBarMenu.logout:
         await _auth.signOut();
-        Navigator.of(context).pushNamedAndRemoveUntil('/splash', (Route<dynamic> route) => false);
+        Navigator.of(context).pushNamedAndRemoveUntil(Constants.splashRoute, (Route<dynamic> route) => false);
+        break;
+    }
+  }
+
+  Future _onBottomBarItemTapped(int index) async {
+    switch(index) {
+      case 0:
+        break;
+      case 1:
+        Navigator.pushNamed(context, Constants.calContactsRoute);
         break;
     }
   }

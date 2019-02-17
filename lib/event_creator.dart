@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:flutter_widget_app/event_model.dart';
+import 'package:flutter_widget_app/models/event_model.dart';
 import 'package:intl/intl.dart';
 
 class EventData {
