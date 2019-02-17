@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_widget_app/global_contants.dart';
 
 class LoginData {
   String email = '';
@@ -71,7 +72,7 @@ class _SplashPageState extends State<SplashPage> {
     if (Navigator.canPop(context)) {
       Navigator.of(context).pop();
     } else {
-      Navigator.of(context).pushNamed('/calendar');
+      Navigator.of(context).pushNamed(Constants.calendarRoute);
     }
   }
 
