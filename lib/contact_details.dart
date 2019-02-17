@@ -43,6 +43,11 @@ class _ContactDetailsState extends State<ContactDetails> {
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError)
             return new Text('${snapshot.error}');
+          if (snapshot?.data?.documents?.length == 0) {
+            return new Center(
+              child: Text('No data available...', style: Theme.of(context).textTheme.title),
+            );
+          }
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
               return new Center(child: new CircularProgressIndicator());

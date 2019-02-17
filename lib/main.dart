@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_widget_app/contact_creator.dart';
+import 'package:flutter_widget_app/global_contants.dart';
 
 import 'splash_screen.dart';
 import 'event_creator.dart';
@@ -38,7 +39,6 @@ class MyApp extends StatelessWidget {
         '/splash': (context) => SplashPage(),
         '/calendar': (context) => MyApp(),
         '/event_creator': (context) => EventCreator(null),
-        '/add_contact': (contaxt) => ContactCreator(),
         '/calendar_contacts': (context) => CalendarContacts(),
       },
     );
@@ -129,7 +129,6 @@ class CalendarState extends State<HomePage> {
   }
 
   Future<QuerySnapshot> _getCalendarData() async {
-    print('getCalendarData() called.');
     FirebaseUser currentUser = await _auth.currentUser();
 
     if (currentUser != null) {
@@ -185,7 +184,7 @@ class CalendarState extends State<HomePage> {
   }
 
   void _onFabClicked() {
-    Navigator.pushNamed(context, '/event_creator');
+    Navigator.pushNamed(context, Constants.eventCreatorRoute);
   }
 
   @override
@@ -524,7 +523,7 @@ class CalendarState extends State<HomePage> {
     switch(value) {
       case _AppBarMenu.logout:
         await _auth.signOut();
-        Navigator.of(context).pushNamedAndRemoveUntil('/splash', (Route<dynamic> route) => false);
+        Navigator.of(context).pushNamedAndRemoveUntil(Constants.splashRoute, (Route<dynamic> route) => false);
         break;
     }
   }
@@ -534,7 +533,7 @@ class CalendarState extends State<HomePage> {
       case 0:
         break;
       case 1:
-        Navigator.pushNamed(context, '/calendar_contacts');
+        Navigator.pushNamed(context, Constants.calContactsRoute);
         break;
     }
   }
