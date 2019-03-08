@@ -97,9 +97,11 @@ class EventCreatorState extends State<EventCreator> {
               new DateTimePickerFormField(
                 initialDate: widget._event != null ? widget._event.time : DateTime.now(),
                 initialValue: widget._event != null ? widget._event.time : DateTime.now(),
+                inputType: InputType.both,
                 format: dateFormat,
                 keyboardType: TextInputType.datetime,
                 style: TextStyle(fontSize: 20.0, color: Colors.black),
+                editable: true,
                 decoration: InputDecoration(
                     labelText: 'Event Date',
                     hintText: 'November 1, 2018 at 5:00PM',
