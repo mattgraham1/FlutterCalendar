@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_widget_app/authentication.dart';
 import 'package:flutter_widget_app/global_contants.dart';
 
 class LoginData {
@@ -179,7 +180,6 @@ class _SplashPageState extends State<SplashPage> {
         borderRadius: BorderRadius.circular(30.0),
         shadowColor: Colors.lightBlueAccent.shade100,
         child: new MaterialButton(
-            minWidth: 200.0,
             height: 42.0,
             color: Colors.lightBlueAccent,
             onPressed: () {
@@ -196,11 +196,32 @@ class _SplashPageState extends State<SplashPage> {
         borderRadius: BorderRadius.circular(30.0),
         shadowColor: Colors.lightBlueAccent.shade100,
         child: new MaterialButton(
-          minWidth: 200.0,
           height: 42.0,
           color: Colors.lightBlueAccent,
           onPressed: this.signUpWithEmail,
           child: new Text('Sign Up', style: new TextStyle(fontSize: 24.0, color: Colors.white))
+        ),
+      ),
+    );
+
+    final signInWithGoogleButton = new Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.0),
+      child: new Material(
+        borderRadius: BorderRadius.circular(30.0),
+        shadowColor: Colors.lightBlueAccent.shade100,
+        child: new MaterialButton(
+            height: 42.0,
+            color: Colors.lightBlueAccent,
+            onPressed: () async {
+              AuthHelper authHelper = new AuthHelper();
+              FirebaseUser user = await authHelper.signInWithGoogle();
+              if(user != null) {
+                _navigateToCalendarView();
+              } else {
+                print("Error signing with Google.");
+              }
+            },
+            child: new Text('Sign in with Google', style: new TextStyle(fontSize: 24.0, color: Colors.white))
         ),
       ),
     );
@@ -280,16 +301,18 @@ class _SplashPageState extends State<SplashPage> {
             SizedBox(height: 8.0),
             _isLoading ? loadingSpinner:
                 Container(
-                  height: 120.0,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       loginButton,
-                      signUpButton
+                      SizedBox(width: 20.0),
+                      signUpButton,
                     ],
                   ),
-
                 ),
+            SizedBox(height: 4.0),
+            signInWithGoogleButton,
             SizedBox(height: 4.0),
             resetPasswordText,
           ],

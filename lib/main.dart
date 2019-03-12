@@ -111,7 +111,8 @@ class CalendarState extends State<HomePage> {
       assert(token != null);
       print('push token: ' + token);
 
-      FirebaseUser user = await _auth.currentUser();
+//      FirebaseUser user = await _auth.currentUser();
+      FirebaseUser user = await FirebaseAuth.instance.currentUser();
       QuerySnapshot snapshot = await Firestore.instance.collection('users')
           .where('email', isEqualTo: user.email).getDocuments();
 
