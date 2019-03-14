@@ -17,6 +17,9 @@ dependencies:
   firebase_messaging: ^4.0.0
   cloud_functions: 0.1.2
 
+  #Google / Social media buttons
+  flutter_auth_buttons: ^0.3.1
+
   #Date time picker plugin
   datetime_picker_formfield: ^0.1.8
 
