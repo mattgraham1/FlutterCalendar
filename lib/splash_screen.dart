@@ -198,6 +198,7 @@ class _SplashPageState extends State<SplashPage> {
         AuthHelper authHelper = new AuthHelper();
 
         FirebaseUser user = await authHelper.signInWithGoogle().catchError((onError) {
+          // Clear spinner on error
           setState(() {
             _isLoading = false;
           });

@@ -27,11 +27,6 @@ class AuthHelper {
     );
 
     final FirebaseUser user = await _auth.signInWithCredential(credential);
-
-//    assert(user.email != null);
-//    assert(!user.isAnonymous);
-//    assert(await user.getIdToken() != null);
-
     final FirebaseUser currentUser = await _auth?.currentUser();
     assert(user?.uid == currentUser?.uid);
 
