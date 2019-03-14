@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_widget_app/authentication.dart';
+import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_widget_app/global_contants.dart';
 
 class LoginData {
@@ -174,57 +175,46 @@ class _SplashPageState extends State<SplashPage> {
       },
     );
 
-    final loginButton = new Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.0),
-      child: new Material(
-        borderRadius: BorderRadius.circular(30.0),
-        shadowColor: Colors.lightBlueAccent.shade100,
-        child: new MaterialButton(
-            height: 42.0,
-            color: Colors.lightBlueAccent,
-            onPressed: () {
-              this.signInWithEmail();
-            },
-            child: new Text('Login', style: new TextStyle(fontSize: 24.0, color: Colors.white))
-        ),
-      ),
+    final loginButton = new RaisedButton(
+        color: Colors.lightBlueAccent,
+        onPressed: () {
+          this.signInWithEmail();
+        },
+        child: new Text('Login', style: new TextStyle(fontSize: 24.0, color: Colors.white))
     );
 
-    final signUpButton = new Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.0),
-      child: new Material(
-        borderRadius: BorderRadius.circular(30.0),
-        shadowColor: Colors.lightBlueAccent.shade100,
-        child: new MaterialButton(
-          height: 42.0,
-          color: Colors.lightBlueAccent,
-          onPressed: this.signUpWithEmail,
-          child: new Text('Sign Up', style: new TextStyle(fontSize: 24.0, color: Colors.white))
-        ),
-      ),
+    final signUpButton = new RaisedButton(
+      color: Colors.lightBlueAccent,
+      onPressed: this.signUpWithEmail,
+      child: new Text('Sign Up', style: new TextStyle(fontSize: 24.0, color: Colors.white))
     );
 
-    final signInWithGoogleButton = new Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.0),
-      child: new Material(
-        borderRadius: BorderRadius.circular(30.0),
-        shadowColor: Colors.lightBlueAccent.shade100,
-        child: new MaterialButton(
-            height: 42.0,
-            color: Colors.lightBlueAccent,
-            onPressed: () async {
-              AuthHelper authHelper = new AuthHelper();
-              FirebaseUser user = await authHelper.signInWithGoogle();
-              if(user != null) {
-                _navigateToCalendarView();
-              } else {
-                print("Error signing with Google.");
-              }
-            },
-            child: new Text('Sign in with Google', style: new TextStyle(fontSize: 24.0, color: Colors.white))
-        ),
-      ),
-    );
+    final signInWithGoogleButton = GoogleSignInButton(
+      onPressed: () async {
+        setState(() {
+          _isLoading = true;
+        });
+
+        AuthHelper authHelper = new AuthHelper();
+
+        FirebaseUser user = await authHelper.signInWithGoogle().catchError((onError) {
+          setState(() {
+            _isLoading = false;
+          });
+        });
+
+        // Clear spinner
+        setState(() {
+          _isLoading = false;
+        });
+
+        if(user != null) {
+          _navigateToCalendarView();
+        } else {
+          print("Error signing with Google.");
+        }
+      },
+      darkMode: true);
 
     final resetPasswordText = new GestureDetector(
       onTap: () {
@@ -281,41 +271,43 @@ class _SplashPageState extends State<SplashPage> {
 
     return new Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: ListView(
-          shrinkWrap: true,
-          padding: EdgeInsets.only(left: 24.0, right: 24.0),
-          children: <Widget>[
-            loginImage,
-            SizedBox(height: 16.0),
-            new Form(
-              key: this._formKey,
-              child: new Column(
-                children: <Widget>[
-                  emailWidget,
-                  SizedBox(height: 8.0),
-                  passwordWidget,
-                ],
+      body: Padding(
+        padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              loginImage,
+              SizedBox(height: 16.0),
+              new Form(
+                key: this._formKey,
+                child: new Column(
+                  children: <Widget>[
+                    emailWidget,
+                    SizedBox(height: 8.0),
+                    passwordWidget,
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 8.0),
-            _isLoading ? loadingSpinner:
-                Container(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
+              SizedBox(height: 8.0),
+              _isLoading ? loadingSpinner :
+                  Column(
                     children: <Widget>[
-                      loginButton,
-                      SizedBox(width: 20.0),
-                      signUpButton,
+                      SizedBox(height: 4.0),
+                      signInWithGoogleButton,
+                      Row(
+                        children: <Widget>[
+                          Expanded(child: loginButton),
+                          SizedBox(width: 4.0),
+                          Expanded(child:signUpButton),
+                        ],
+                      ),
                     ],
                   ),
-                ),
-            SizedBox(height: 4.0),
-            signInWithGoogleButton,
-            SizedBox(height: 4.0),
-            resetPasswordText,
-          ],
+              SizedBox(height: 4.0),
+              resetPasswordText,
+            ],
+          ),
         ),
       )
     );
