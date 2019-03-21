@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_widget_app/global_contants.dart';
+import 'package:flutter_widget_app/sign_in_vew.dart';
 
 import 'splash_screen.dart';
 import 'event_creator.dart';
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
         '/calendar': (context) => MyApp(),
         '/event_creator': (context) => EventCreator(null),
         '/calendar_contacts': (context) => CalendarContacts(),
+        '/sign_in_page': (context) => SignInPage(),
       },
     );
   }
