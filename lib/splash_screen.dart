@@ -10,7 +10,6 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  bool _isLoading = false;
 
   void _navigateToCalendarView() {
     Navigator.of(context).pushNamedAndRemoveUntil(Constants.calendarRoute,
@@ -25,22 +24,10 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     final signInWithGoogleButton = GoogleSignInButton(
       onPressed: () async {
-        setState(() {
-          _isLoading = true;
-        });
-
         AuthHelper authHelper = new AuthHelper();
 
         FirebaseUser user = await authHelper.signInWithGoogle().catchError((onError) {
-          // Clear spinner on error
-          setState(() {
-            _isLoading = false;
-          });
-        });
-
-        // Clear spinner
-        setState(() {
-          _isLoading = false;
+          // Handle errors if needed
         });
 
         if(user != null) {
@@ -51,31 +38,45 @@ class _SplashPageState extends State<SplashPage> {
       },
       darkMode: true);
 
-    final signInWithEmailButton = new Container(
-        child: MaterialButton(
-          onPressed: _navigateToSignInPage,
-          elevation: 4.0,
-          color: Color(0xFF4285F4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(Icons.email, color: Colors.white, size: 38),
-              SizedBox(width: 14.0,),
-              Text("Sign in with email",
-                  style: new TextStyle(fontSize: 18.0, color: Colors.white)),
-            ],
-          ),
-        )
+    final signInWithEmailButton = ButtonTheme(
+      height: 40.0,
+      padding: const EdgeInsets.all(0.0),
+      shape: RoundedRectangleBorder(
+        // Google doesn't specify a border radius, but this looks about right.
+        borderRadius: BorderRadius.circular(3.0),
+      ),
+      child: RaisedButton(
+        onPressed: _navigateToSignInPage,
+        color: Color(0xFF4285F4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(padding: const EdgeInsets.all(1.0),
+              child: Container(
+                height: 38.0, // 40dp - 2*1dp border
+                width: 38.0, // matches above
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(3.0),
+                ),
+                child: Center(
+                  child: Icon(Icons.email, color: Colors.white, size: 38),
+                ),
+              ),
+            ),
+            SizedBox(width: 14.0 /* 24.0 - 10dp padding */),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
+              child: Text('Sign in with email',
+                style: TextStyle(fontSize: 18.0, fontFamily: "Roboto", fontWeight: FontWeight.w500, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
 
     final loginImage = new Image.asset('assets/calendar.png',
       height: 128.0,
-    );
-
-    final loadingSpinner = new Center(
-      heightFactor: null,
-      widthFactor: null,
-      child: new CircularProgressIndicator(),
     );
 
     return new Scaffold(
@@ -91,6 +92,7 @@ class _SplashPageState extends State<SplashPage> {
                 style: TextStyle(fontSize: 38, fontWeight: FontWeight.bold), textAlign: TextAlign.center)
               ),
               loginImage,
+              SizedBox(height: 8.0),
               signInWithGoogleButton,
               Center(child: Text("or")),
               SizedBox(height: 4.0),

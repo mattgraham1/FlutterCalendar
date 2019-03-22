@@ -248,7 +248,7 @@ class _SignInPageState extends State<SignInPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                SizedBox(height: 16.0),
+                SizedBox(height: 8.0),
                 loginImage,
                 new Form(
                   key: this._formKey,
@@ -265,14 +265,8 @@ class _SignInPageState extends State<SignInPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    SizedBox(height: 4.0),
-                    Row(
-                      children: <Widget>[
-                        Expanded(child: loginButton),
-                        SizedBox(width: 4.0),
-                        Expanded(child:signUpButton),
-                      ],
-                    ),
+                    loginButton,
+                    signUpButton,
                   ],
                 ),
                 SizedBox(height: 4.0),
