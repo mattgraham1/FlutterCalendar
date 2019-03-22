@@ -10,4 +10,5 @@ class Constants {
   static String calendarRoute = '/calendar';
   static String eventCreatorRoute = '/event_creator';
   static String calContactsRoute = '/calendar_contacts';
+  static String signInRoute = '/sign_in_page';
 }
