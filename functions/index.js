@@ -92,10 +92,15 @@ exports.flutterCalendar = functions.https.onRequest((request, response) => {
       admin.messaging().send(message);
     })
 
-    response.status(200).send(data);
+    response.status(200).send("Successfully ran script!");
     return null;
-  }).catch(error => {
-    console.error(error);
+  })
+  .then(response => {
+  	//console.log('Successfully sent message:', response);
+  	return null;
+  })
+  .catch(error => {
+    console.error('Error sending push notification: ', error);
     response.status(501).send('Error from script...');
   });
 });
